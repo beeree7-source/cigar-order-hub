@@ -39,6 +39,16 @@ const uploadLicense = (req, res) => {
   );
 };
 
-module.exports = { registerUser, approveUser, uploadLicense };
+// GET /api/users
+const getUsers = (req, res) => {
+  db.all("SELECT * FROM users", (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+};
+
+
+module.exports = { registerUser, approveUser, uploadLicense, getUsers };
+
 
 
