@@ -224,3 +224,62 @@ const searchProducts = async () => {
     <p>{p.description}</p>
   </div>
 ))}
+
+// New state
+const [inventory, setInventory] = useState([]);
+const [newItem, setNewItem] = useState({
+  product: '', sku: '', quantity: 0, minThreshold: 10, supplierId: 1
+});
+
+// New functions
+const loadInventory = async () => {
+  const data = await apiCall('/api/inventory', null, true);
+  setInventory(data || []);
+};
+
+const addInventoryItem = async () => {
+  await apiCall('/api/inventory', newItem);
+  loadInventory();
+  setNewItem({ product: '', sku: '', quantity: 0, minThreshold: 10, supplierId: 1 });
+};
+
+// New UI Section (add after Shipping panel)
+<div style={{ marginTop: "3rem", padding: "2rem", background: "#f8f9fa", borderRadius: "8px" }}>
+  <h3>📊 Inventory Management</h3>
+  
+  {/* Add Item Form */}
+  <div style={{ background: "white", padding: "1.5rem", borderRadius: "8px", marginBottom: "2rem" }}>
+    <h4>Add/Update Item</h4>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "1rem" }}>
+      <input placeholder="Product" value={newItem.product} onChange={(e) => setNewItem({...newItem, product: e.target.value})} />
+      <input placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} />
+      <input type="number" placeholder="Qty" value={newItem.quantity} onChange={(e) => setNewItem({...newItem, quantity: Number(e.target.value)})} />
+      <input type="number" placeholder="Min Threshold" value={newItem.minThreshold} onChange={(e) => setNewItem({...newItem, minThreshold: Number(e.target.value)})} />
+      <button onClick={addInventoryItem}>Add Item</button>
+    </div>
+  </div>
+
+  {/* Inventory Table */}
+  <h4>Your Inventory</h4>
+  <button onClick={loadInventory}>Refresh</button>
+  <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+    <thead>
+      <tr>
+        <th>Product</th><th>SKU</th><th>Qty</th><th>Min</th>
+        <th>Status</th><th>⚠️ Low Stock</th>
+      </tr>
+    </thead>
+    <tbody>
+      {inventory.map((item: any) => (
+        <tr key={item.id} style={{ background: item.quantity <= item.minThreshold ? '#fff3cd' : 'white' }}>
+          <td>{item.product}</td>
+          <td>{item.sku}</td>
+          <td><strong>{item.quantity}</strong></td>
+          <td>{item.minThreshold}</td>
+          <td>{item.quantity <= item.minThreshold ? '🔴 LOW' : '✅ OK'}</td>
+          <td>{item.quantity <= item.minThreshold && 'Auto-order triggered'}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
