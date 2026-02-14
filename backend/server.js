@@ -26,3 +26,6 @@ app.get("/api/protected/orders", getOrders);
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
+
+// auth routes
+app.use('/api/shipping', shippingRoutes);
