@@ -1,20 +1,24 @@
 const db = require("./database");
 
+const bcrypt = require("bcryptjs");
+
 // POST /api/users/register
 const registerUser = (req, res) => {
-  const { name, email, role } = req.body;
-  if (!name || !email || !role) {
-    return res.status(400).json({ error: "Missing name, email, or role" });
+  const { name, email, role, password } = req.body;
+  if (!name || !email || !role || !password) {
+    return res.status(400).json({ error: "Missing fields" });
   }
+  const hashedPassword = bcrypt.hashSync(password, 10);
   db.run(
-    "INSERT INTO users (name, email, role) VALUES (?, ?, ?)",
-    [name, email, role],
+    "INSERT INTO users (name, email, role, password) VALUES (?, ?, ?, ?)",
+    [name, email, role, hashedPassword],
     function(err) {
       if (err) return res.status(400).json({ error: err.message });
-      res.json({ message: "User registered", user: { id: this.lastID, name, email, role, approved: role === "supplier" } });
+      res.json({ message: "User registered", user: { id: this.lastID, name, email, role } });
     }
   );
 };
+
 
 // POST /api/users/:id/approve
 const approveUser = (req, res) => {
@@ -49,6 +53,7 @@ const getUsers = (req, res) => {
 
 
 module.exports = { registerUser, approveUser, uploadLicense, getUsers };
+
 
 
 
