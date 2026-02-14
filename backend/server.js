@@ -1,6 +1,6 @@
 const express = require("express");
-const { registerUser, approveUser, uploadLicense } = require("./users");
-const { createOrder } = require("./orders");
+const { registerUser, approveUser, uploadLicense, getUsers } = require("./users");
+const { createOrder, getOrders } = require("./orders");
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -14,9 +14,13 @@ app.get("/", (req, res) => {
 app.post("/api/users/register", registerUser);
 app.post("/api/users/:id/approve", approveUser);
 app.post("/api/users/:id/license", uploadLicense);
+app.get("/api/users", getUsers);
 app.post("/api/orders", createOrder);
+app.get("/api/orders", getOrders);
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
+
+
 
