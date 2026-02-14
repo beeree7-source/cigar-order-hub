@@ -13,6 +13,7 @@ app.get("/", (req, res) => {
 app.post("/api/users/register", registerUser);
 app.post("/api/users/:id/approve", approveUser);
 app.post("/api/users/:id/license", uploadLicense);
+app.post("/api/orders", createOrder);
 
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
