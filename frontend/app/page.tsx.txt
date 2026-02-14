@@ -1,0 +1,8 @@
+export default function Home() {
+  return (
+    <main>
+      <h1>Cigar Order Hub</h1>
+      <p>B2B SaaS marketplace for cigar retailers and wholesalers.</p>
+    </main>
+  );
+}
