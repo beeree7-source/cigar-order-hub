@@ -185,3 +185,8 @@ const trackUPS = async () => {
     </div>
   )}
 </div>
+
+const [products, setProducts] = useState([]);
+const loadProducts = async (supplierId) => setProducts(await apiCall(`/api/products/supplier/${supplierId}`));
+<button onClick={() => loadProducts(1)}>Load Supplier Products</button>
+{products.map(p => <div>{p.name} - ${p.price}</div>)}
