@@ -45,3 +45,15 @@ db.serialize(() => {
 });
 
 module.exports = db;
+
+db.run(`CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  supplierId INTEGER,
+  name TEXT,
+  sku TEXT UNIQUE,
+  price REAL,
+  stock INTEGER,
+  imageUrl TEXT,
+  description TEXT,
+  FOREIGN KEY(supplierId) REFERENCES users(id)
+)`);
