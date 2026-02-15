@@ -35,6 +35,46 @@ app.post('/api/products', authenticateToken, createProduct);
 app.get('/api/products/supplier/:supplierId', authenticateToken, getProductsBySupplier);
 app.get('/api/products/search', authenticateToken, searchProducts);
 
+// Analytics endpoints
+const {
+  getAnalyticsSummary,
+  getRevenueData,
+  getTopProducts,
+  getTopSuppliers,
+  getOrdersOverTime,
+  getLowStockProducts,
+  getOrderStatusBreakdown,
+  adjustStock,
+  getStockHistory
+} = require('./analytics');
+
+app.get('/api/protected/analytics/summary', authenticateToken, getAnalyticsSummary);
+app.get('/api/protected/analytics/revenue', authenticateToken, getRevenueData);
+app.get('/api/protected/analytics/top-products', authenticateToken, getTopProducts);
+app.get('/api/protected/analytics/top-suppliers', authenticateToken, getTopSuppliers);
+app.get('/api/protected/analytics/orders-over-time', authenticateToken, getOrdersOverTime);
+app.get('/api/protected/analytics/order-status-breakdown', authenticateToken, getOrderStatusBreakdown);
+app.get('/api/protected/products/low-stock', authenticateToken, getLowStockProducts);
+app.post('/api/protected/products/:id/adjust-stock', authenticateToken, adjustStock);
+app.get('/api/protected/products/:id/stock-history', authenticateToken, getStockHistory);
+
+// CSV Export endpoints
+const {
+  exportOrders,
+  exportUsers,
+  exportProducts,
+  exportMonthlyRevenue,
+  exportLowStock,
+  exportTopProducts
+} = require('./exports');
+
+app.get('/api/protected/export/orders', authenticateToken, exportOrders);
+app.get('/api/protected/export/users', authenticateToken, exportUsers);
+app.get('/api/protected/export/products', authenticateToken, exportProducts);
+app.get('/api/protected/export/monthly-revenue', authenticateToken, exportMonthlyRevenue);
+app.get('/api/protected/export/low-stock', authenticateToken, exportLowStock);
+app.get('/api/protected/export/top-products', authenticateToken, exportTopProducts);
+
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
