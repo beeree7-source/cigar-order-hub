@@ -166,6 +166,86 @@ const trackUPS = async () => {
   setTrackingResult(data);
 };
 
+// Add imports
+// import { useState, useEffect } from "react"; (already there)
+
+// Add state (with existing states)
+const [inventory, setInventory] = useState([]);
+const [newItem, setNewItem] = useState({
+  product: '', sku: '', quantity: 0, minThreshold: 10, supplierId: 1
+});
+
+// Add functions
+const loadInventory = async () => {
+  const data = await apiCall('/api/inventory', null, true);
+  setInventory(data || []);
+};
+
+const addInventoryItem = async () => {
+  await apiCall('/api/inventory', newItem);
+  loadInventory();
+  setNewItem({ product: '', sku: '', quantity: 0, minThreshold: 10, supplierId: 1 });
+};
+
+// Add useEffect for auto-load
+useEffect(() => {
+  if (token) {
+    loadUsers();
+    loadOrders();
+    loadInventory();  // Add this line
+  }
+}, [token]);
+
+// Add HTML SECTION (after shipping panel, before closing </div>)
+<div style={{ marginTop: "3rem", padding: "2rem", background: "#f8f9fa", borderRadius: "8px" }}>
+  <h3>📦 Inventory Management + Auto-Reorder</h3>
+  
+  <div style={{ background: "white", padding: "1.5rem", borderRadius: "8px", marginBottom: "2rem" }}>
+    <h4>Add Item</h4>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr 120px", gap: "1rem" }}>
+      <input placeholder="Product (Cohiba Siglo)" value={newItem.product} onChange={(e) => setNewItem({...newItem, product: e.target.value})} />
+      <input placeholder="SKU" value={newItem.sku} onChange={(e) => setNewItem({...newItem, sku: e.target.value})} />
+      <input type="number" placeholder="Current Qty" value={newItem.quantity} onChange={(e) => setNewItem({...newItem, quantity: Number(e.target.value)})} />
+      <input type="number" placeholder="Min Threshold" value={newItem.minThreshold} onChange={(e) => setNewItem({...newItem, minThreshold: Number(e.target.value)})} />
+      <button onClick={addInventoryItem}>Add/Update</button>
+    </div>
+  </div>
+
+  <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+    <button onClick={loadInventory}>🔄 Refresh Inventory</button>
+  </div>
+
+  <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "1rem" }}>
+    <thead style={{ background: "#e9ecef" }}>
+      <tr>
+        <th style={{ padding: "0.75rem" }}>Product</th>
+        <th>SKU</th>
+        <th style={{ textAlign: "center" }}>Qty</th>
+        <th style={{ textAlign: "center" }}>Min</th>
+        <th style={{ textAlign: "center" }}>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {inventory.map((item: any) => {
+        const isLow = item.quantity <= item.minThreshold;
+        return (
+          <tr key={item.id} style={{ background: isLow ? '#fff3cd' : 'white' }}>
+            <td style={{ padding: "0.75rem" }}>{item.product}</td>
+            <td>{item.sku}</td>
+            <td style={{ textAlign: "center", fontWeight: "bold", color: isLow ? 'red' : 'green' }}>
+              {item.quantity}
+            </td>
+            <td style={{ textAlign: "center" }}>{item.minThreshold}</td>
+            <td style={{ textAlign: "center" }}>
+              {isLow ? '🔴 LOW - AUTO ORDERED' : '✅ OK'}
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+  
 // Add this UI section (after Orders table)
 <div style={{ marginTop: "3rem", padding: "2rem", background: "#fff3cd", borderRadius: "8px" }}>
   <h3>📦 Track Shipment</h3>
@@ -283,3 +363,4 @@ const addInventoryItem = async () => {
     </tbody>
   </table>
 </div>
+
