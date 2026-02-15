@@ -661,6 +661,97 @@ app.post('/api/shipping/estimate-cost', authenticateToken, shippingIntegration.e
 app.get('/api/suppliers/:supplierId/shipping/carrier-comparison', authenticateToken, shippingIntegration.getCarrierComparison);
 app.get('/api/suppliers/:supplierId/shipping/delivery-trends', authenticateToken, shippingIntegration.getDeliveryTrends);
 
+// ============================================
+// Mobile Field Sales Representative System
+// ============================================
+
+// Sales Rep Service
+const salesRepService = require('./sales-rep-service');
+const locationService = require('./location-service');
+const mileageService = require('./mileage-service');
+const photoService = require('./photo-service');
+const mobileOrders = require('./mobile-orders');
+const performanceService = require('./performance-service');
+
+// Daily Check-In (5 endpoints)
+app.post('/api/reps/check-in', authenticateToken, salesRepService.checkIn);
+app.post('/api/reps/check-out', authenticateToken, salesRepService.checkOut);
+app.get('/api/reps/:sales_rep_id/check-in/today', authenticateToken, salesRepService.getTodayCheckIn);
+app.get('/api/reps/:sales_rep_id/check-in/history', authenticateToken, salesRepService.getCheckInHistory);
+app.put('/api/reps/check-in/:id', authenticateToken, salesRepService.updateCheckIn);
+
+// Location Tracking (6 endpoints)
+app.post('/api/reps/location/track', authenticateToken, locationService.trackLocation);
+app.get('/api/reps/:sales_rep_id/location/today', authenticateToken, locationService.getTodayRoute);
+app.get('/api/reps/:sales_rep_id/location/history', authenticateToken, locationService.getLocationHistory);
+app.get('/api/reps/:sales_rep_id/location/route', authenticateToken, locationService.getRoute);
+app.post('/api/reps/location/start-trip', authenticateToken, locationService.startTrip);
+app.post('/api/reps/location/end-trip', authenticateToken, locationService.endTrip);
+
+// Additional location utilities
+app.get('/api/reps/location/geofence', authenticateToken, locationService.checkGeofence);
+app.get('/api/reps/location/distance', authenticateToken, locationService.getDistance);
+app.get('/api/reps/location/nearby-accounts', authenticateToken, locationService.getNearbyAccounts);
+
+// Mileage (7 endpoints)
+app.post('/api/reps/mileage/log', authenticateToken, mileageService.logMileage);
+app.get('/api/reps/:sales_rep_id/mileage/today', authenticateToken, mileageService.getTodayMileage);
+app.get('/api/reps/:sales_rep_id/mileage/month', authenticateToken, mileageService.getMonthlyMileage);
+app.get('/api/reps/:sales_rep_id/mileage/reimbursement', authenticateToken, mileageService.calculateReimbursement);
+app.put('/api/reps/mileage/:id', authenticateToken, mileageService.updateMileageLog);
+app.post('/api/reps/:sales_rep_id/mileage/export', authenticateToken, mileageService.exportMileageForAccounting);
+app.get('/api/reps/:sales_rep_id/mileage/calculate-from-tracking', authenticateToken, mileageService.calculateMileageFromTracking);
+
+// Account Visits (7 endpoints)
+app.post('/api/reps/visits/check-in', authenticateToken, salesRepService.checkInAtAccount);
+app.post('/api/reps/visits/check-out', authenticateToken, salesRepService.checkOutFromAccount);
+app.get('/api/reps/:sales_rep_id/visits/today', authenticateToken, salesRepService.getTodayVisits);
+app.get('/api/reps/visits/account/:account_id', authenticateToken, salesRepService.getAccountVisitHistory);
+app.get('/api/reps/:sales_rep_id/visits/schedule', authenticateToken, salesRepService.getScheduledVisits);
+app.put('/api/reps/visits/:id', authenticateToken, salesRepService.updateVisit);
+app.post('/api/reps/visits/:id/complete', authenticateToken, salesRepService.completeVisit);
+
+// Photos (8 endpoints)
+app.post('/api/reps/photos/upload', authenticateToken, photoService.uploadPhoto);
+app.get('/api/reps/photos/visit/:visit_id', authenticateToken, photoService.getVisitPhotos);
+app.get('/api/reps/photos/account/:account_id', authenticateToken, photoService.getAccountPhotos);
+app.post('/api/reps/photos/:id/approve', authenticateToken, photoService.approvePhoto);
+app.post('/api/reps/photos/:id/reject', authenticateToken, photoService.rejectPhoto);
+app.delete('/api/reps/photos/:id', authenticateToken, photoService.deletePhoto);
+app.get('/api/reps/:sales_rep_id/photos/gallery', authenticateToken, photoService.getPhotoGallery);
+app.post('/api/reps/photos/batch-upload', authenticateToken, photoService.batchUploadPhotos);
+
+// Photo statistics
+app.get('/api/reps/photos/statistics', authenticateToken, photoService.getPhotoStatistics);
+
+// Authorized Accounts (5 endpoints)
+app.get('/api/reps/:sales_rep_id/accounts', authenticateToken, salesRepService.getAuthorizedAccounts);
+app.get('/api/reps/accounts/:account_id', authenticateToken, salesRepService.getAccountDetails);
+app.get('/api/reps/accounts/:account_id/preferences', authenticateToken, salesRepService.getAccountPreferences);
+app.get('/api/reps/accounts/:account_id/visit-history', authenticateToken, salesRepService.getAccountVisitHistory);
+app.post('/api/reps/accounts/:account_id/visit', authenticateToken, salesRepService.scheduleVisit);
+
+// Orders (7 endpoints)
+app.post('/api/reps/orders/create', authenticateToken, mobileOrders.createOrder);
+app.get('/api/reps/orders/account/:account_id', authenticateToken, mobileOrders.getAccountOrders);
+app.get('/api/reps/:sales_rep_id/orders/today', authenticateToken, mobileOrders.getTodayOrders);
+app.get('/api/reps/orders/:order_id', authenticateToken, mobileOrders.getOrderDetails);
+app.put('/api/reps/orders/:order_id', authenticateToken, mobileOrders.updateOrder);
+app.get('/api/reps/orders/history/:account_id', authenticateToken, mobileOrders.getOrderHistory);
+app.post('/api/reps/orders/:order_id/reorder', authenticateToken, mobileOrders.quickReorder);
+
+// Performance & Analytics (6 endpoints)
+app.get('/api/reps/:sales_rep_id/performance/dashboard', authenticateToken, performanceService.getRepDashboard);
+app.get('/api/reps/:sales_rep_id/performance/daily', authenticateToken, performanceService.getDailyMetrics);
+app.get('/api/reps/:sales_rep_id/performance/weekly', authenticateToken, performanceService.getWeeklySummary);
+app.get('/api/reps/:sales_rep_id/performance/monthly', authenticateToken, performanceService.getMonthlySummary);
+app.get('/api/reps/:sales_rep_id/performance/accounts', authenticateToken, performanceService.getAccountMetrics);
+app.get('/api/reps/performance/comparison/:manager_id', authenticateToken, performanceService.getRepComparison);
+
+// Sales Rep Management
+app.post('/api/reps/create', authenticateToken, salesRepService.createSalesRep);
+app.get('/api/reps/user/:user_id', authenticateToken, salesRepService.getSalesRepByUserId);
+
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });

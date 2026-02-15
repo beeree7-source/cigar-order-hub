@@ -1,12 +1,13 @@
 # Cigar Order Hub
 
-B2B SaaS central ordering hub for cigar retailers and wholesalers with Enterprise-level RBAC and Shipping Integration.
+B2B SaaS central ordering hub for cigar retailers and wholesalers with Enterprise-level RBAC, Shipping Integration, and Mobile Sales Rep System.
 
 ## 🎯 Overview
 
 The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailers with suppliers, featuring:
-- **UPS & USPS Shipping Integration** 🆕
-- **Enterprise Multi-Login & RBAC System** 🆕
+- **Mobile Field Sales Representative System** 🆕
+- **UPS & USPS Shipping Integration** 
+- **Enterprise Multi-Login & RBAC System**
 - Multi-supplier ordering system
 - Invoice generation and management
 - Email notification system
@@ -28,10 +29,10 @@ The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailer
 ```bash
 cd backend
 npm install
-# Run database migrations
+# Run all database migrations
 npm run migrate
-# Or manually:
-sqlite3 cigar-hub.db < migrations/006_create_shipping_tables.sql
+# Or manually run the latest migration:
+sqlite3 cigar-hub.db < migrations/007_create_sales_rep_tables.sql
 npm start
 ```
 Runs on http://localhost:4000
@@ -60,16 +61,129 @@ Follow Expo instructions to run on iOS/Android
 - **[Mobile App README](./mobile/README.md)** - Mobile app setup and features
 - **[Deployment Guide](./DEPLOYMENT.md)** - Deployment instructions
 
-### RBAC System Documentation 🆕
+### Mobile Sales Rep System Documentation 🆕
+- **[Mobile Sales Rep Guide](./MOBILE_SALES_REP_GUIDE.md)** - Comprehensive user guide for sales representatives
+- **[Mobile App API Documentation](./MOBILE_APP_API_DOCUMENTATION.md)** - 49 API endpoints for mobile sales features
+- **[Sales Rep Setup Guide](./SALES_REP_SETUP_GUIDE.md)** - Complete setup and configuration guide
+
+### RBAC System Documentation
 - **[RBAC API Documentation](./RBAC_API_DOCUMENTATION.md)** - 50+ new API endpoints for authentication and authorization
 - **[RBAC Setup Guide](./RBAC_SETUP_GUIDE.md)** - Complete setup and configuration guide
 - **[RBAC Implementation Summary](./RBAC_IMPLEMENTATION_SUMMARY.md)** - Technical overview and architecture
 - **[RBAC Security Summary](./RBAC_SECURITY_SUMMARY.md)** - Security analysis and recommendations
 
-### Shipping Integration Documentation 🆕
+### Shipping Integration Documentation
 - **[Shipping API Documentation](./SHIPPING_API_DOCUMENTATION.md)** - 32 new API endpoints for UPS and USPS integration
 - **[Shipping Setup Guide](./SHIPPING_SETUP_GUIDE.md)** - Complete setup and configuration guide
 - **[Shipping Implementation Summary](./SHIPPING_IMPLEMENTATION_SUMMARY.md)** - Technical overview and architecture
+
+## 📱 Mobile Field Sales Representative System
+
+### Features
+
+**Daily Operations:**
+- ✅ Morning/Evening check-in with GPS location
+- ✅ Weather capture and daily notes
+- ✅ Manual or automatic mileage tracking
+- ✅ Visit scheduling and management
+
+**Location Tracking:**
+- ✅ Real-time GPS tracking (optional)
+- ✅ Route history and visualization
+- ✅ Map view of daily visits
+- ✅ Geofencing for customer accounts
+- ✅ Arrival/departure notifications
+- ✅ Nearby accounts finder
+
+**Mileage Tracking:**
+- ✅ Automatic distance calculation (Haversine formula)
+- ✅ Manual odometer entry
+- ✅ Trip-by-trip logging
+- ✅ Monthly reimbursement calculation (IRS standard rate)
+- ✅ CSV export for accounting
+
+**Photo Documentation:**
+- ✅ In-app camera with location tagging
+- ✅ Multiple photo types (product, display, store, etc.)
+- ✅ Batch upload capability
+- ✅ Photo approval workflow (optional)
+- ✅ Photo gallery per visit/account
+- ✅ Photo statistics and analytics
+
+**Account Management:**
+- ✅ Assigned accounts list
+- ✅ Account contact information
+- ✅ Account visit history
+- ✅ Account preferences/settings
+- ✅ Account performance metrics
+- ✅ Authorization levels (full_access, order_only, view_only)
+
+**Order Management:**
+- ✅ View authorized accounts
+- ✅ Create orders for authorized accounts
+- ✅ Track order history
+- ✅ Quick reorder from previous orders
+- ✅ Order status tracking
+
+**Performance Dashboard:**
+- ✅ Daily/Weekly/Monthly metrics
+- ✅ Visit completion rates
+- ✅ Sales targets vs actuals
+- ✅ KPI widgets
+- ✅ Account-level analytics
+- ✅ Manager comparison reports
+
+### API Endpoints (49 total)
+
+- **Daily Check-In** (5 endpoints): Morning/evening check-in, status, history, updates
+- **Location Tracking** (9 endpoints): Track location, route history, geofencing, distance calculation
+- **Mileage** (7 endpoints): Log trips, monthly summaries, reimbursement, export
+- **Account Visits** (7 endpoints): Check-in/out at accounts, visit history, scheduling
+- **Photos** (9 endpoints): Upload, gallery, approval workflow, batch operations, statistics
+- **Authorized Accounts** (5 endpoints): List accounts, details, preferences, visit history
+- **Orders** (7 endpoints): Create orders, history, quick reorder, status tracking
+- **Performance** (6 endpoints): Dashboard, daily/weekly/monthly metrics, account analytics
+- **Sales Rep Management** (2 endpoints): Create profile, get by user ID
+
+### Database Schema (9 new tables)
+
+1. **sales_reps**: Sales representative profiles
+2. **daily_check_ins**: Daily check-in/out records
+3. **location_tracking**: GPS location points
+4. **account_visits**: Customer visit records
+5. **account_visit_photos**: Photos from visits
+6. **account_preferences**: Account-specific settings
+7. **rep_authorized_accounts**: Rep-to-account authorization
+8. **mileage_logs**: Mileage tracking for reimbursement
+9. **rep_performance_metrics**: Performance KPIs
+
+### Configuration
+
+Supplier-controlled features via `account_preferences`:
+- `allow_rep_photos`: Enable/disable photo capture
+- `allow_location_tracking`: Enable/disable GPS tracking
+- `allow_visit_notes`: Enable/disable visit documentation
+- `allow_order_placement`: Enable/disable order creation by reps
+- `mileage_reimbursement_enabled`: Enable/disable mileage tracking
+- `mileage_rate`: Custom mileage reimbursement rate
+- `photo_approval_required`: Require approval for photos
+- `minimum_visit_duration`: Minimum visit length required
+
+### Security & Privacy
+
+**Location Data:**
+- HTTPS encryption in transit
+- Encrypted storage at rest
+- Location data retention policy (30 days default)
+- User consent management
+- GDPR compliance
+
+**Photo Security:**
+- Photo encryption
+- Watermarking with metadata
+- Approval workflow
+- Access controls
+- Deletion/retention policy (365 days default)
 
 ## 🔐 Enterprise Multi-Login & RBAC System
 
