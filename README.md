@@ -1,10 +1,11 @@
 # Cigar Order Hub
 
-B2B SaaS central ordering hub for cigar retailers and wholesalers with Enterprise-level RBAC.
+B2B SaaS central ordering hub for cigar retailers and wholesalers with Enterprise-level RBAC and Shipping Integration.
 
 ## 🎯 Overview
 
 The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailers with suppliers, featuring:
+- **UPS & USPS Shipping Integration** 🆕
 - **Enterprise Multi-Login & RBAC System** 🆕
 - Multi-supplier ordering system
 - Invoice generation and management
@@ -18,8 +19,8 @@ The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailer
 - **Backend API**: Node.js/Express with SQLite
 - **Frontend Web**: Next.js/React
 - **Mobile App**: React Native with Expo
-- **Integrations**: QuickBooks Online, Email services
-- **Security**: JWT, API Keys, MFA, RBAC
+- **Integrations**: QuickBooks Online, Email services, UPS, USPS
+- **Security**: JWT, API Keys, MFA, RBAC, AES-256 Encryption
 
 ## 🚀 Quick Start
 
@@ -28,7 +29,9 @@ The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailer
 cd backend
 npm install
 # Run database migrations
-sqlite3 cigar-hub.db < migrations/005_create_rbac_tables.sql
+npm run migrate
+# Or manually:
+sqlite3 cigar-hub.db < migrations/006_create_shipping_tables.sql
 npm start
 ```
 Runs on http://localhost:4000
@@ -62,6 +65,11 @@ Follow Expo instructions to run on iOS/Android
 - **[RBAC Setup Guide](./RBAC_SETUP_GUIDE.md)** - Complete setup and configuration guide
 - **[RBAC Implementation Summary](./RBAC_IMPLEMENTATION_SUMMARY.md)** - Technical overview and architecture
 - **[RBAC Security Summary](./RBAC_SECURITY_SUMMARY.md)** - Security analysis and recommendations
+
+### Shipping Integration Documentation 🆕
+- **[Shipping API Documentation](./SHIPPING_API_DOCUMENTATION.md)** - 32 new API endpoints for UPS and USPS integration
+- **[Shipping Setup Guide](./SHIPPING_SETUP_GUIDE.md)** - Complete setup and configuration guide
+- **[Shipping Implementation Summary](./SHIPPING_IMPLEMENTATION_SUMMARY.md)** - Technical overview and architecture
 
 ## 🔐 Enterprise Multi-Login & RBAC System
 
@@ -132,6 +140,102 @@ curl -X POST http://localhost:4000/api/auth/login-email \
 ```
 
 See [RBAC Setup Guide](./RBAC_SETUP_GUIDE.md) for complete instructions.
+
+## 🚚 UPS & USPS Shipping Integration
+
+### Features
+
+**Account Management:**
+- ✅ Connect UPS and USPS carrier accounts
+- ✅ AES-256 encrypted credential storage
+- ✅ Account verification and status monitoring
+- ✅ Multiple carriers per supplier
+- ✅ Connection refresh and management
+
+**Label Generation:**
+- ✅ Generate shipping labels for both carriers
+- ✅ Automatic address validation
+- ✅ Multiple service types (Ground, Express, Priority, etc.)
+- ✅ Weight verification
+- ✅ Label reprinting and downloading
+- ✅ Batch label generation
+
+**Real-Time Tracking:**
+- ✅ Current shipment status and location
+- ✅ Estimated delivery dates
+- ✅ Detailed event history
+- ✅ Webhook subscriptions
+- ✅ Email notifications
+- ✅ Batch tracking
+
+**Analytics & Reporting:**
+- ✅ Shipping cost analysis
+- ✅ Carrier performance comparison
+- ✅ On-time delivery rates
+- ✅ Delivery trends
+- ✅ Cost estimation
+
+**Database Schema:**
+- 3 new tables (supplier_shipping_accounts, shipment_tracking, shipment_events)
+- 9 performance indexes
+- Full audit trail
+
+**API Endpoints:**
+- 32 new RESTful endpoints
+- UPS account management (5 endpoints)
+- USPS account management (5 endpoints)
+- Label generation (6 endpoints)
+- Tracking (6 endpoints)
+- Shipment management (5 endpoints)
+- Analytics & reporting (5 endpoints)
+
+### Quick Shipping Setup
+
+1. **Run migrations:**
+```bash
+cd backend
+npm run migrate
+# Or manually:
+sqlite3 cigar-hub.db < migrations/006_create_shipping_tables.sql
+```
+
+2. **Configure environment:**
+```bash
+# Add to backend/.env
+ENCRYPTION_KEY=your-secure-32-character-encryption-key-here
+
+# UPS Integration
+UPS_ENABLED=true
+UPS_ACCOUNT_NUMBER=your_account
+UPS_USER_ID=your_user_id
+UPS_PASSWORD=your_password
+UPS_METER_NUMBER=your_meter
+UPS_API_URL=https://onlinetools.ups.com/ship/v1
+
+# USPS Integration
+USPS_ENABLED=true
+USPS_USER_ID=your_user_id
+USPS_API_KEY=your_api_key
+USPS_API_URL=https://secure.shippingapis.com
+```
+
+3. **Connect UPS account:**
+```bash
+curl -X POST http://localhost:4000/api/suppliers/1/shipping/ups/connect \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"accountNumber":"TEST123","userId":"testuser","password":"testpass","meterNumber":"METER123","apiKey":"APIKEY123"}'
+```
+
+4. **Generate a label:**
+```bash
+curl -X POST http://localhost:4000/api/suppliers/1/shipping/labels/ups \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":1,"weight":2.5,"serviceType":"ground","shipFrom":{...},"shipTo":{...}}'
+```
+
+See [Shipping Setup Guide](./SHIPPING_SETUP_GUIDE.md) for complete instructions.
 
 ## ✨ Phase 4 Enterprise Features
 
