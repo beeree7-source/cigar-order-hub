@@ -1,10 +1,17 @@
 const express = require("express");
+const cors = require("cors");
 const { registerUser, approveUser, uploadLicense, getUsers } = require("./users");
 const { createOrder, getOrders } = require("./orders");
 const { authenticateToken, login } = require("./auth");
 const app = express();
 
 const PORT = process.env.PORT || 4000;
+
+// CORS configuration to allow requests from Vercel frontend
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}));
 
 app.use(express.json());
 
