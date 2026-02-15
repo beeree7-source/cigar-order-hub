@@ -21,8 +21,10 @@ import {
 } from '../services/auth';
 
 export default function LoginScreen({ navigation }: any) {
-  const [email, setEmail] = useState('supplier@test.com');
-  const [password, setPassword] = useState('password123');
+  // DEVELOPMENT ONLY: Remove these default values in production
+  // These credentials are for testing purposes only
+  const [email, setEmail] = useState(__DEV__ ? 'supplier@test.com' : '');
+  const [password, setPassword] = useState(__DEV__ ? 'password123' : '');
   const [loading, setLoading] = useState(false);
   const [biometricSupported, setBiometricSupported] = useState(false);
   const [useBiometric, setUseBiometric] = useState(false);

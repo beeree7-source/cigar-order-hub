@@ -9,11 +9,13 @@ const db = require('./database');
 
 // Mock email service (simulates sending emails)
 // In production, replace with nodemailer/SendGrid
+// NOTE: This is a development mock - emails are only logged to console
+// Email addresses are NOT validated and no actual emails are sent
 const sendEmail = async (to, subject, body) => {
   // Simulate email sending delay
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log(`📧 Email sent to ${to}: ${subject}`);
+      console.log(`📧 [MOCK EMAIL] To: ${to}, Subject: ${subject}`);
       resolve({ success: true, messageId: Date.now().toString() });
     }, 100);
   });

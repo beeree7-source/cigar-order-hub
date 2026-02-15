@@ -13,13 +13,17 @@ const db = require('./database');
  */
 const connectQuickBooks = async (req, res) => {
   try {
+    // Generate CSRF token for security (in production, store this in session/database)
+    // TODO: In production, use a cryptographically secure random generator and store/validate the state
+    const csrfToken = `state_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+    
     // Mock OAuth URL (in production, use intuit-oauth to generate)
-    const mockAuthUrl = `https://appcenter.intuit.com/connect/oauth2?client_id=MOCK_CLIENT_ID&redirect_uri=${encodeURIComponent(process.env.QUICKBOOKS_REDIRECT_URI || 'http://localhost:4000/api/protected/quickbooks/callback')}&response_type=code&scope=com.intuit.quickbooks.accounting&state=security_token`;
+    const mockAuthUrl = `https://appcenter.intuit.com/connect/oauth2?client_id=MOCK_CLIENT_ID&redirect_uri=${encodeURIComponent(process.env.QUICKBOOKS_REDIRECT_URI || 'http://localhost:4000/api/protected/quickbooks/callback')}&response_type=code&scope=com.intuit.quickbooks.accounting&state=${csrfToken}`;
 
     res.json({
       authUrl: mockAuthUrl,
       message: 'Redirect user to this URL to authorize QuickBooks access',
-      note: 'This is a mock implementation. In production, use intuit-oauth package.'
+      note: 'This is a mock implementation. In production, use intuit-oauth package with proper CSRF validation.'
     });
   } catch (error) {
     console.error('Error initiating QB OAuth:', error);

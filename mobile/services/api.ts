@@ -1,8 +1,20 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-const API_URL = Constants.expoConfig?.extra?.apiUrl || 'http://localhost:4000';
+// API URL configuration
+// Note: For Android emulator, use 10.0.2.2 to access host machine's localhost
+// For physical devices, use your computer's IP address (e.g., http://192.168.1.100:4000)
+const getDefaultApiUrl = () => {
+  if (Platform.OS === 'android') {
+    // Android emulator can't access localhost, use special IP
+    return 'http://10.0.2.2:4000';
+  }
+  return 'http://localhost:4000';
+};
+
+const API_URL = Constants.expoConfig?.extra?.apiUrl || getDefaultApiUrl();
 
 /**
  * API Service for mobile app

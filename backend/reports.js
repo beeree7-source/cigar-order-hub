@@ -198,9 +198,11 @@ const getProfitAnalysis = async (req, res) => {
           return res.status(500).json({ error: 'Database error' });
         }
 
-        // Calculate profit margins (mock calculation - assumes 30% cost)
+        // Calculate profit margins (mock calculation)
+        // Assumes Cost of Goods Sold (COGS) is 70% of selling price
+        // This gives a 30% gross profit margin
         const productsWithMargin = products.map(p => {
-          const cost = p.current_price * 0.7; // Assume 30% margin
+          const cost = p.current_price * 0.7; // COGS = 70% of price
           const revenue = p.total_revenue || 0;
           const profit = revenue - (cost * (p.total_quantity_sold || 0));
           const margin_percentage = revenue > 0 ? (profit / revenue) * 100 : 0;

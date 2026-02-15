@@ -7,11 +7,32 @@ const db = require('./database');
 
 /**
  * Generate invoice number with format INV-YYYY-NNN
+ * TODO: In production, query database for the last invoice number and increment
+ * to ensure uniqueness instead of using random numbers
  */
-const generateInvoiceNumber = () => {
-  const year = new Date().getFullYear();
-  const random = Math.floor(Math.random() * 900) + 100;
-  return `INV-${year}-${random}`;
+const generateInvoiceNumber = async () => {
+  return new Promise((resolve) => {
+    const year = new Date().getFullYear();
+    
+    // Query for the highest invoice number this year
+    db.get(
+      `SELECT invoice_number FROM invoices 
+       WHERE invoice_number LIKE ? 
+       ORDER BY invoice_number DESC LIMIT 1`,
+      [`INV-${year}-%`],
+      (err, row) => {
+        if (err || !row) {
+          // Start with 001 if no invoices exist
+          resolve(`INV-${year}-001`);
+        } else {
+          // Extract number and increment
+          const lastNumber = parseInt(row.invoice_number.split('-')[2]) || 0;
+          const nextNumber = (lastNumber + 1).toString().padStart(3, '0');
+          resolve(`INV-${year}-${nextNumber}`);
+        }
+      }
+    );
+  });
 };
 
 /**
@@ -84,9 +105,9 @@ const generateInvoice = async (req, res) => {
             const dueDate = new Date();
             dueDate.setDate(dueDate.getDate() + daysToAdd);
 
-            const invoiceNumber = generateInvoiceNumber();
-
-            // Create invoice
+            // Generate unique invoice number
+            generateInvoiceNumber().then((invoiceNumber) => {
+              // Create invoice
             db.run(
               `INSERT INTO invoices 
                (order_id, invoice_number, total, tax, discount, subtotal, 
@@ -123,8 +144,8 @@ const generateInvoice = async (req, res) => {
                     notes
                   }
                 });
-              }
-            );
+              });
+            });
           }
         );
       }
