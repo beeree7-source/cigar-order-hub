@@ -1,50 +1,43 @@
-// notifications.js
-
 const nodemailer = require('nodemailer');
 const rateLimit = require('express-rate-limit');
-const winston = require('winston');
+const logger = require('pino')(); // Sample logger
 
-// Setup logging
-const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [
-        new winston.transports.File({ filename: 'audit.log' })
-    ]
-});
-
-// Rate limiter to prevent email spam
+// Rate limit to prevent abuse of the email sending
 const emailLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 5 // Limit each IP to 5 requests per windowMs
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
 });
 
-// Email sender setup
+// Set up Nodemailer transport
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS,
-    }
+  service: 'Gmail', // Example with Gmail
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
 });
 
-// Function to validate boolean settings
-const isValidBoolean = (value) => typeof value === 'boolean';
-
-// Sample function to send an email
-const sendEmail = async (emailOptions) => {
-    try {
-        // Validate input settings
-        if (!isValidBoolean(emailOptions.someBooleanSetting)) {
-            throw new Error('Invalid boolean setting');
-        }
-
-        const info = await transporter.sendMail(emailOptions);
-        logger.info(`Email sent: ${info.response}`);
-    } catch (error) {
-        logger.error(`Error sending email: ${error.message}`);
-        throw error;
+async function sendEmail(to, subject, text) {
+  try {
+    // Input validation
+    if (!to || !subject || !text) {
+      throw new Error('All fields are required');
     }
-};
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject,
+      text
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    logger.info(`Email sent successfully to ${to}`);
+  } catch (error) {
+    logger.error(`Failed to send email: ${error.message}`);
+    throw new Error('Failed to send email'); // Rethrow for further handling
+  }
+}
 
 module.exports = { sendEmail, emailLimiter };
