@@ -58,6 +58,20 @@ db.serialize(() => {
       FOREIGN KEY(supplierId) REFERENCES users(id)
     )
   `);
+
+  // Create stock_history table for inventory tracking
+  db.run(`
+    CREATE TABLE IF NOT EXISTS stock_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      product_id INTEGER,
+      user_id INTEGER,
+      adjustment INTEGER,
+      reason TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(product_id) REFERENCES products(id),
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+  `);
 });
 
 module.exports = db;
