@@ -146,7 +146,9 @@ const approvePhoto = (req, res) => {
     try {
       metadata = photo.photo_metadata ? JSON.parse(photo.photo_metadata) : {};
     } catch (e) {
-      metadata = {};
+      console.error(`Failed to parse photo metadata for photo ID ${id}:`, e.message);
+      console.error(`Corrupted metadata value:`, photo.photo_metadata);
+      metadata = {}; // Reset to empty object, but operation continues
     }
 
     metadata.approval_status = 'approved';
@@ -192,7 +194,9 @@ const rejectPhoto = (req, res) => {
     try {
       metadata = photo.photo_metadata ? JSON.parse(photo.photo_metadata) : {};
     } catch (e) {
-      metadata = {};
+      console.error(`Failed to parse photo metadata for photo ID ${id}:`, e.message);
+      console.error(`Corrupted metadata value:`, photo.photo_metadata);
+      metadata = {}; // Reset to empty object, but operation continues
     }
 
     metadata.approval_status = 'rejected';

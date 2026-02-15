@@ -207,5 +207,8 @@ CREATE INDEX IF NOT EXISTS idx_rep_performance_period ON rep_performance_metrics
 
 -- Insert default account preferences for existing users
 -- This ensures all existing retailer accounts have preference settings
+-- NOTE: This sets allow_order_placement=1 as the default for all retailer accounts.
+-- If your business requirements differ, please adjust this default value or run a 
+-- separate migration to configure account-specific settings after deployment.
 INSERT OR IGNORE INTO account_preferences (account_id, allow_order_placement)
 SELECT id, 1 FROM users WHERE role = 'retailer';

@@ -442,6 +442,10 @@ const scheduleVisit = (req, res) => {
 
 /**
  * Create sales rep
+ * NOTE: The assigned_accounts field is a JSON cache for quick reference.
+ * The authoritative source of truth is the rep_authorized_accounts junction table.
+ * This field should be kept synchronized with the junction table or used only for 
+ * performance optimization purposes.
  */
 const createSalesRep = (req, res) => {
   const { user_id, employee_id, company_id, territory, assigned_accounts, manager_id, hire_date, base_location } = req.body;
@@ -457,6 +461,10 @@ const createSalesRep = (req, res) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
+    
+    // TODO: Consider creating entries in rep_authorized_accounts table
+    // to maintain data consistency between assigned_accounts JSON and junction table
+    
     res.status(201).json({ 
       message: 'Sales rep created successfully',
       sales_rep_id: this.lastID

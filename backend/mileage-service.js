@@ -1,5 +1,5 @@
 const db = require('./database');
-const { calculateDistance } = require('./location-service');
+const { calculateDistance } = require('./distance-utils');
 
 /**
  * Mileage Service

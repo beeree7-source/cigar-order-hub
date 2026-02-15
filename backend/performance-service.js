@@ -281,22 +281,34 @@ const getWeeklySummary = (req, res) => {
           };
         });
 
-        // Calculate totals
-        const summary = {
-          total_visits: dailyStats.reduce((sum, d) => sum + (d.visits || 0), 0),
-          total_accounts_visited: new Set(dailyStats.map(d => d.accounts_visited)).size,
-          total_photos: dailyStats.reduce((sum, d) => sum + (d.photos_taken || 0), 0),
-          total_miles: parseFloat(mileageStats.reduce((sum, d) => sum + (d.miles || 0), 0).toFixed(2)),
-          total_reimbursement: parseFloat(mileageStats.reduce((sum, d) => sum + (d.reimbursement || 0), 0).toFixed(2)),
-          total_orders: ordersStats.reduce((sum, d) => sum + (d.orders || 0), 0)
-        };
+        // Calculate totals - get unique accounts visited in the week
+        const uniqueAccountsQuery = `
+          SELECT COUNT(DISTINCT account_id) as unique_accounts
+          FROM account_visits
+          WHERE sales_rep_id = ? AND visit_date >= ? AND visit_date <= ?
+        `;
+        
+        db.get(uniqueAccountsQuery, [sales_rep_id, startDate, endDate], (err, uniqueAccounts) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          
+          const summary = {
+            total_visits: dailyStats.reduce((sum, d) => sum + (d.visits || 0), 0),
+            total_accounts_visited: uniqueAccounts?.unique_accounts || 0,
+            total_photos: dailyStats.reduce((sum, d) => sum + (d.photos_taken || 0), 0),
+            total_miles: parseFloat(mileageStats.reduce((sum, d) => sum + (d.miles || 0), 0).toFixed(2)),
+            total_reimbursement: parseFloat(mileageStats.reduce((sum, d) => sum + (d.reimbursement || 0), 0).toFixed(2)),
+            total_orders: ordersStats.reduce((sum, d) => sum + (d.orders || 0), 0)
+          };
 
-        res.json({
-          week_start: startDate,
-          week_end: endDate,
-          sales_rep_id,
-          by_date: Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date)),
-          summary
+          res.json({
+            week_start: startDate,
+            week_end: endDate,
+            sales_rep_id,
+            by_date: Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date)),
+            summary
+          });
         });
       });
     });
