@@ -1,18 +1,1 @@
-{
-  "name": "cigar-order-hub-backend",
-  "version": "0.1.0",
-  "description": "Backend API for the Cigar Order Hub MVP",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "sqlite3": "^5.1.7",
-    "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5"
-  }
-}
-
-
+{"name": "cigar-order-hub-backend", "version": "0.1.0", "description": "Backend API for the Cigar Order Hub MVP", "main": "server.js", "scripts": {"start": "node server.js", "migrate": "node migrations/runMigrations.js"}, "dependencies": {"express": "^4.19.2", "sqlite3": "^5.1.7", "jsonwebtoken": "^9.0.2", "bcryptjs": "^2.4.3", "cors": "^2.8.5", "nodemailer": "^6.9.7", "express-rate-limit": "^7.1.5", "pino": "^8.17.2", "dotenv": "^16.3.1"}, "devDependencies": {"nodemon": "^3.0.2"}}
