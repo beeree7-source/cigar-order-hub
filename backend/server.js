@@ -611,6 +611,58 @@ app.get('/api/audit-logs', verifyAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// ============================================
+// Shipping Integration - UPS & USPS
+// ============================================
+
+const shippingIntegration = require('./shipping-integration');
+
+// UPS Account Management (5 endpoints)
+app.post('/api/suppliers/:supplierId/shipping/ups/connect', authenticateToken, shippingIntegration.linkUPSAccount);
+app.get('/api/suppliers/:supplierId/shipping/ups/status', authenticateToken, shippingIntegration.getUPSStatus);
+app.post('/api/suppliers/:supplierId/shipping/ups/verify', authenticateToken, shippingIntegration.verifyUPSCredentialsEndpoint);
+app.delete('/api/suppliers/:supplierId/shipping/ups/disconnect', authenticateToken, shippingIntegration.unlinkUPSAccount);
+app.post('/api/suppliers/:supplierId/shipping/ups/refresh', authenticateToken, shippingIntegration.refreshUPSConnection);
+
+// USPS Account Management (5 endpoints)
+app.post('/api/suppliers/:supplierId/shipping/usps/connect', authenticateToken, shippingIntegration.linkUSPSAccount);
+app.get('/api/suppliers/:supplierId/shipping/usps/status', authenticateToken, shippingIntegration.getUSPSStatus);
+app.post('/api/suppliers/:supplierId/shipping/usps/verify', authenticateToken, shippingIntegration.verifyUSPSCredentialsEndpoint);
+app.delete('/api/suppliers/:supplierId/shipping/usps/disconnect', authenticateToken, shippingIntegration.unlinkUSPSAccount);
+app.post('/api/suppliers/:supplierId/shipping/usps/refresh', authenticateToken, shippingIntegration.refreshUSPSConnection);
+
+// Label Generation (6 endpoints)
+app.post('/api/suppliers/:supplierId/shipping/labels/ups', authenticateToken, shippingIntegration.generateUPSLabel);
+app.post('/api/suppliers/:supplierId/shipping/labels/usps', authenticateToken, shippingIntegration.generateUSPSLabel);
+app.get('/api/shipping/labels/:trackingNumber', authenticateToken, shippingIntegration.getLabel);
+app.post('/api/shipping/labels/:trackingNumber/reprint', authenticateToken, shippingIntegration.reprintLabel);
+app.post('/api/shipping/labels/:trackingNumber/download', authenticateToken, shippingIntegration.downloadLabel);
+app.post('/api/shipping/labels/batch-generate', authenticateToken, shippingIntegration.batchGenerateLabels);
+
+// Tracking (6 endpoints)
+app.get('/api/shipping/track/:trackingNumber', authenticateToken, shippingIntegration.trackShipment);
+app.get('/api/suppliers/:supplierId/shipping/track/summary', authenticateToken, shippingIntegration.getTrackingSummary);
+app.get('/api/shipping/track/:trackingNumber/history', authenticateToken, shippingIntegration.getTrackingHistory);
+app.post('/api/shipping/track/:trackingNumber/subscribe', authenticateToken, shippingIntegration.subscribeToUpdates);
+app.get('/api/shipping/track/:trackingNumber/events', authenticateToken, shippingIntegration.getTrackingEvents);
+app.post('/api/shipping/track/batch-track', authenticateToken, shippingIntegration.batchTrackShipments);
+
+// Shipment Management (5 endpoints)
+app.get('/api/suppliers/:supplierId/shipping/shipments', authenticateToken, shippingIntegration.getSupplierShipments);
+app.get('/api/suppliers/:supplierId/shipping/shipments/:trackingNumber', authenticateToken, shippingIntegration.getShipmentDetails);
+app.post('/api/suppliers/:supplierId/shipping/shipments/:trackingNumber/cancel', authenticateToken, shippingIntegration.cancelShipment);
+app.post('/api/suppliers/:supplierId/shipping/shipments/:trackingNumber/hold', authenticateToken, shippingIntegration.holdShipment);
+app.post('/api/suppliers/:supplierId/shipping/shipments/pickup/schedule', authenticateToken, shippingIntegration.schedulePickup);
+
+// Analytics & Reporting (3 endpoints)
+app.get('/api/suppliers/:supplierId/shipping/metrics', authenticateToken, shippingIntegration.getShippingMetrics);
+app.get('/api/suppliers/:supplierId/shipping/analytics', authenticateToken, shippingIntegration.getShippingAnalytics);
+app.post('/api/shipping/estimate-cost', authenticateToken, shippingIntegration.estimateShippingCost);
+
+// Carrier comparison endpoint
+app.get('/api/suppliers/:supplierId/shipping/carrier-comparison', authenticateToken, shippingIntegration.getCarrierComparison);
+app.get('/api/suppliers/:supplierId/shipping/delivery-trends', authenticateToken, shippingIntegration.getDeliveryTrends);
+
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
