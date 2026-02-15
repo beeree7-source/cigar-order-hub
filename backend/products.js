@@ -37,7 +37,7 @@ const updateStock = (req, res) => {
     function(err) {
       if (err || this.changes === 0) return res.status(400).json({ error: 'Product not found' });
       db.get(`SELECT stock FROM products WHERE id = ?`, [productId], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err || !row) return res.status(404).json({ error: 'Product not found' });
         res.json({ message: 'Stock updated', newStock: row.stock });
       });
     }
