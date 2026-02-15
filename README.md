@@ -1,10 +1,11 @@
 # Cigar Order Hub
 
-B2B SaaS central ordering hub for cigar retailers and wholesalers.
+B2B SaaS central ordering hub for cigar retailers and wholesalers with Enterprise-level RBAC.
 
 ## 🎯 Overview
 
 The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailers with suppliers, featuring:
+- **Enterprise Multi-Login & RBAC System** 🆕
 - Multi-supplier ordering system
 - Invoice generation and management
 - Email notification system
@@ -18,6 +19,7 @@ The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailer
 - **Frontend Web**: Next.js/React
 - **Mobile App**: React Native with Expo
 - **Integrations**: QuickBooks Online, Email services
+- **Security**: JWT, API Keys, MFA, RBAC
 
 ## 🚀 Quick Start
 
@@ -25,6 +27,8 @@ The Cigar Order Hub is a comprehensive B2B platform that connects cigar retailer
 ```bash
 cd backend
 npm install
+# Run database migrations
+sqlite3 cigar-hub.db < migrations/005_create_rbac_tables.sql
 npm start
 ```
 Runs on http://localhost:4000
@@ -47,10 +51,87 @@ Follow Expo instructions to run on iOS/Android
 
 ## 📚 Documentation
 
+### General Documentation
 - **[API Documentation](./API_DOCUMENTATION.md)** - Complete API reference with examples
 - **[Security Summary](./SECURITY_SUMMARY.md)** - Security analysis and recommendations
 - **[Mobile App README](./mobile/README.md)** - Mobile app setup and features
 - **[Deployment Guide](./DEPLOYMENT.md)** - Deployment instructions
+
+### RBAC System Documentation 🆕
+- **[RBAC API Documentation](./RBAC_API_DOCUMENTATION.md)** - 50+ new API endpoints for authentication and authorization
+- **[RBAC Setup Guide](./RBAC_SETUP_GUIDE.md)** - Complete setup and configuration guide
+- **[RBAC Implementation Summary](./RBAC_IMPLEMENTATION_SUMMARY.md)** - Technical overview and architecture
+- **[RBAC Security Summary](./RBAC_SECURITY_SUMMARY.md)** - Security analysis and recommendations
+
+## 🔐 Enterprise Multi-Login & RBAC System
+
+### Features
+
+**Authentication Methods:**
+- ✅ Email/Password with bcrypt hashing (cost 12)
+- ✅ Single Sign-On (SSO) framework (OAuth2)
+- ✅ API Key authentication with scoped permissions
+- ✅ Multi-Factor Authentication (MFA/TOTP)
+- ✅ Session management with timeout
+
+**Role-Based Access Control:**
+- 7 predefined roles (Admin, Manager, Sales, Shipping, Office, Finance, Supplier)
+- Custom role creation
+- Granular permission system (create, read, update, delete, manage)
+- Resource-level access control
+- Department and team-based permissions
+- Permission inheritance hierarchy
+
+**Security Features:**
+- Complete audit logging (all user actions)
+- IP address and user agent tracking
+- JWT tokens (15-minute access, 7-day refresh)
+- API key rate limiting
+- Session tracking and management
+- Password strength validation
+
+**Database Schema:**
+- 12 new tables (companies, departments, roles, permissions, teams, audit logs, etc.)
+- 15 performance indexes
+- 98 new database fields
+
+**API Endpoints:**
+- 50+ new RESTful endpoints
+- Authentication (login, register, MFA, API keys)
+- User management (CRUD, profiles, teams)
+- Roles & permissions (assign, revoke, check)
+- Departments & teams (create, manage, members)
+- Audit logs (complete activity tracking)
+
+### Quick RBAC Setup
+
+1. **Run migrations:**
+```bash
+cd backend
+sqlite3 cigar-hub.db < migrations/005_create_rbac_tables.sql
+```
+
+2. **Configure environment:**
+```bash
+cp .env.example backend/.env
+# Edit backend/.env and set JWT_SECRET
+```
+
+3. **Create admin user:**
+```bash
+curl -X POST http://localhost:4000/api/auth/register-rbac \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Admin User","email":"admin@example.com","password":"SecurePass123!","role":"retailer"}'
+```
+
+4. **Login:**
+```bash
+curl -X POST http://localhost:4000/api/auth/login-email \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"SecurePass123!"}'
+```
+
+See [RBAC Setup Guide](./RBAC_SETUP_GUIDE.md) for complete instructions.
 
 ## ✨ Phase 4 Enterprise Features
 
