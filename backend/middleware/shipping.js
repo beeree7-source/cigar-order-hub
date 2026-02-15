@@ -1,4 +1,5 @@
 const db = require('../database');
+const { TRACKING_PATTERNS, RATE_LIMITS } = require('../shipping-constants');
 
 /**
  * Shipping Middleware
@@ -178,7 +179,7 @@ const rateLimitLabels = (req, res, next) => {
         return next(); // Allow request on error
       }
 
-      const limit = 100; // 100 labels per hour
+      const limit = RATE_LIMITS.LABEL_GENERATION;
       if (result && result.count >= limit) {
         return res.status(429).json({ 
           error: 'Rate limit exceeded',
@@ -202,13 +203,11 @@ const validateTrackingNumber = (req, res, next) => {
     return res.status(400).json({ error: 'Tracking number is required' });
   }
 
-  // Basic format validation
-  // UPS: starts with 1Z, 18 characters
-  // USPS: starts with 9, 20-22 digits
-  const upsPattern = /^1Z[A-Z0-9]{16}$/;
-  const uspsPattern = /^9\d{19,21}$/;
+  // Use patterns from constants
+  const isValid = TRACKING_PATTERNS.UPS.test(trackingNumber) || 
+                  TRACKING_PATTERNS.USPS.test(trackingNumber);
 
-  if (!upsPattern.test(trackingNumber) && !uspsPattern.test(trackingNumber)) {
+  if (!isValid) {
     return res.status(400).json({ 
       error: 'Invalid tracking number format',
       message: 'Tracking number must be valid UPS or USPS format'

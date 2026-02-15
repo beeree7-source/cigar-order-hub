@@ -1,5 +1,6 @@
 const db = require('./database');
 const crypto = require('crypto');
+const { DELIVERY_DAYS, SERVICE_COST_MULTIPLIERS } = require('./shipping-constants');
 
 /**
  * Shipping Integration Service
@@ -12,14 +13,21 @@ const crypto = require('crypto');
 
 // Encryption configuration
 const ENCRYPTION_ALGORITHM = process.env.ENCRYPTION_ALGORITHM || 'aes-256-cbc';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+// Validate encryption key is set
+if (!ENCRYPTION_KEY) {
+  throw new Error('ENCRYPTION_KEY environment variable must be set for shipping integration');
+}
 
 /**
  * Encrypt sensitive data (passwords, API keys)
  */
 const encrypt = (text) => {
   try {
-    const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+    // Use a cryptographic salt derived from the key
+    const salt = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+    const key = crypto.scryptSync(ENCRYPTION_KEY, salt, 32);
     const iv = crypto.randomBytes(16);
     const cipher = crypto.createCipheriv(ENCRYPTION_ALGORITHM, key, iv);
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -36,7 +44,9 @@ const encrypt = (text) => {
  */
 const decrypt = (text) => {
   try {
-    const key = crypto.scryptSync(ENCRYPTION_KEY, 'salt', 32);
+    // Use the same salt derivation as encrypt
+    const salt = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+    const key = crypto.scryptSync(ENCRYPTION_KEY, salt, 32);
     const parts = text.split(':');
     const iv = Buffer.from(parts[0], 'hex');
     const encryptedText = parts[1];
@@ -600,8 +610,11 @@ const generateUSPSLabel = async (req, res) => {
           return res.status(400).json({ error: 'USPS account not connected or inactive' });
         }
 
-        // Mock label generation
-        const trackingNumber = `9${Math.floor(Math.random() * 9000000000000000000000 + 1000000000000000000000)}`;
+        // Mock label generation - use string concatenation to avoid precision issues
+        const randomPart1 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+        const randomPart2 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+        const randomPart3 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+        const trackingNumber = `9${randomPart1}${randomPart2}${randomPart3}`;
         const labelUrl = `https://mock-usps-api.com/labels/${trackingNumber}.pdf`;
         const labelId = `USPS-${Date.now()}`;
 
@@ -649,20 +662,7 @@ const generateUSPSLabel = async (req, res) => {
  */
 const calculateEstimatedDelivery = (serviceType) => {
   const now = new Date();
-  let daysToAdd = 5; // Default
-
-  const serviceMap = {
-    'ground': 5,
-    'express': 2,
-    'next_day_air': 1,
-    '2nd_day_air': 2,
-    'priority_mail': 3,
-    'priority_mail_express': 2,
-    'first_class': 5,
-    'ground_advantage': 5
-  };
-
-  daysToAdd = serviceMap[serviceType.toLowerCase()] || 5;
+  const daysToAdd = DELIVERY_DAYS[serviceType.toLowerCase()] || 5;
   
   now.setDate(now.getDate() + daysToAdd);
   return now.toISOString();
@@ -792,9 +792,16 @@ const batchGenerateLabels = async (req, res) => {
         }
 
         // Mock label generation
-        const trackingNumber = shipment.carrier === 'UPS' 
-          ? `1Z${Math.random().toString(36).substring(2, 15).toUpperCase()}`
-          : `9${Math.floor(Math.random() * 9000000000000000000000 + 1000000000000000000000)}`;
+        let trackingNumber;
+        if (shipment.carrier === 'UPS') {
+          trackingNumber = `1Z${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+        } else {
+          // USPS - use string concatenation to avoid precision issues
+          const randomPart1 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+          const randomPart2 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+          const randomPart3 = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+          trackingNumber = `9${randomPart1}${randomPart2}${randomPart3}`;
+        }
 
         results.push({
           orderId: shipment.orderId,
@@ -1656,18 +1663,7 @@ const estimateShippingCost = async (req, res) => {
 
     // Mock cost estimation
     const baseCost = carrier === 'UPS' ? 8.5 : 7.2;
-    const serviceMultipliers = {
-      'ground': 1.0,
-      'express': 1.5,
-      'next_day_air': 2.5,
-      '2nd_day_air': 1.8,
-      'priority_mail': 1.2,
-      'priority_mail_express': 1.7,
-      'first_class': 0.8,
-      'ground_advantage': 0.9
-    };
-
-    const multiplier = serviceMultipliers[serviceType.toLowerCase()] || 1.0;
+    const multiplier = SERVICE_COST_MULTIPLIERS[serviceType.toLowerCase()] || 1.0;
     const estimatedCost = weight * baseCost * multiplier;
 
     res.json({

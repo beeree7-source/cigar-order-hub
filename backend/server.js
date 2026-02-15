@@ -654,12 +654,10 @@ app.post('/api/suppliers/:supplierId/shipping/shipments/:trackingNumber/cancel',
 app.post('/api/suppliers/:supplierId/shipping/shipments/:trackingNumber/hold', authenticateToken, shippingIntegration.holdShipment);
 app.post('/api/suppliers/:supplierId/shipping/shipments/pickup/schedule', authenticateToken, shippingIntegration.schedulePickup);
 
-// Analytics & Reporting (3 endpoints)
+// Analytics & Reporting (5 endpoints)
 app.get('/api/suppliers/:supplierId/shipping/metrics', authenticateToken, shippingIntegration.getShippingMetrics);
 app.get('/api/suppliers/:supplierId/shipping/analytics', authenticateToken, shippingIntegration.getShippingAnalytics);
 app.post('/api/shipping/estimate-cost', authenticateToken, shippingIntegration.estimateShippingCost);
-
-// Carrier comparison endpoint
 app.get('/api/suppliers/:supplierId/shipping/carrier-comparison', authenticateToken, shippingIntegration.getCarrierComparison);
 app.get('/api/suppliers/:supplierId/shipping/delivery-trends', authenticateToken, shippingIntegration.getDeliveryTrends);
 
