@@ -1247,6 +1247,47 @@ app.post('/api/protected/warehouse/users/:userId', authenticateToken, async (req
   }
 });
 
+// ============================================
+// Document Management & Digital Contracts
+// ============================================
+
+const multer = require('multer');
+const documentService = require('./document-service');
+const contractService = require('./contract-service');
+const signatureService = require('./signature-service');
+
+// Configure multer for file uploads
+const upload = multer({ 
+  dest: '/tmp/uploads/',
+  limits: {
+    fileSize: parseInt(process.env.MAX_DOCUMENT_SIZE || '52428800') // 50MB default
+  }
+});
+
+// Documents - Upload and Management
+app.post('/api/protected/documents/upload', authenticateToken, upload.single('file'), documentService.uploadDocument);
+app.get('/api/protected/documents/supplier/:supplierId/retailer/:retailerId', authenticateToken, documentService.getSupplierDocuments);
+app.get('/api/protected/documents/:id/download', authenticateToken, documentService.getDocument);
+app.delete('/api/protected/documents/:id', authenticateToken, documentService.deleteDocument);
+app.post('/api/protected/documents/:id/scan-enhance', authenticateToken, documentService.scanAndEnhanceDocument);
+app.get('/api/protected/documents/:id/audit-log', authenticateToken, documentService.getDocumentAuditLog);
+
+// Contracts - Creation and Management
+app.post('/api/protected/contracts/create', authenticateToken, contractService.createContract);
+app.post('/api/protected/contracts/:id/send', authenticateToken, contractService.sendContractToRetailer);
+app.get('/api/protected/contracts/:id', authenticateToken, contractService.getContractDetails);
+app.get('/api/protected/contracts/supplier/:supplierId', authenticateToken, contractService.getSupplierContracts);
+app.get('/api/protected/contracts/retailer/:retailerId/pending', authenticateToken, contractService.getPendingContracts);
+app.put('/api/protected/contracts/:id/status', authenticateToken, contractService.updateContractStatus);
+app.get('/api/protected/contracts/:id/audit-log', authenticateToken, contractService.getContractAuditLog);
+
+// E-Signatures - Digital Signing Workflow
+app.post('/api/protected/contracts/:contractId/signature/initialize', authenticateToken, signatureService.initializeSignatureWorkflow);
+app.post('/api/protected/contracts/:contractId/signature', authenticateToken, signatureService.saveSignature);
+app.get('/api/protected/contracts/:contractId/signature-status', authenticateToken, signatureService.getSignatureStatus);
+app.post('/api/protected/contracts/:contractId/complete', authenticateToken, signatureService.completeContractSigning);
+app.get('/api/protected/contracts/:contractId/download', authenticateToken, signatureService.downloadSignedContract);
+
 // Initialize HTTP server for WebSocket
 const http = require('http');
 const server = http.createServer(app);
