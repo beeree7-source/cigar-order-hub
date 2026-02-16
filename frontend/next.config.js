@@ -1,6 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  reactStrictMode: true,
-}
+'use strict';
 
-module.exports = nextConfig
+module.exports = {
+  reactStrictMode: true,
+  images: {
+    domains: ['example.com'], // Add your allowed image domains here
+  },
+  // Additional Next.js configuration can go here
+};
