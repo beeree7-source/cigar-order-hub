@@ -86,6 +86,61 @@ const ROLES = {
       analytics: ['read']
     },
     isSystemRole: true
+  },
+  
+  // Warehouse Management Roles
+  WAREHOUSE_WORKER: {
+    id: 8,
+    name: 'Warehouse Worker',
+    description: 'Perform assigned scanning operations (receiving, picking, shipping)',
+    permissions: {
+      warehouse_scan: ['create', 'read'],
+      warehouse_locations: ['read'],
+      warehouse_inventory: ['read'],
+      receiving: ['create', 'read', 'update'],
+      picking: ['create', 'read', 'update'],
+      shipping_scan: ['create', 'read', 'update']
+    },
+    isSystemRole: true
+  },
+  
+  WAREHOUSE_SUPERVISOR: {
+    id: 9,
+    name: 'Warehouse Supervisor',
+    description: 'Manage pick lists, view real-time inventory, manage locations',
+    permissions: {
+      warehouse_scan: ['create', 'read'],
+      warehouse_locations: ['read', 'update', 'manage'],
+      warehouse_inventory: ['read', 'update'],
+      warehouse_dashboard: ['read'],
+      receiving: ['create', 'read', 'update', 'manage'],
+      picking: ['create', 'read', 'update', 'manage'],
+      shipping_scan: ['create', 'read', 'update', 'manage'],
+      pick_lists: ['create', 'read', 'update', 'manage']
+    },
+    isSystemRole: true
+  },
+  
+  WAREHOUSE_MANAGER: {
+    id: 10,
+    name: 'Warehouse Manager',
+    description: 'Full analytics, reporting, user management for warehouse',
+    permissions: {
+      warehouse_scan: ['create', 'read', 'update', 'delete', 'manage'],
+      warehouse_locations: ['create', 'read', 'update', 'delete', 'manage'],
+      warehouse_inventory: ['create', 'read', 'update', 'delete', 'manage'],
+      warehouse_dashboard: ['read', 'manage'],
+      warehouse_analytics: ['read'],
+      warehouse_reports: ['read'],
+      warehouse_audit: ['read'],
+      warehouse_users: ['create', 'read', 'update', 'manage'],
+      receiving: ['create', 'read', 'update', 'delete', 'manage'],
+      picking: ['create', 'read', 'update', 'delete', 'manage'],
+      shipping_scan: ['create', 'read', 'update', 'delete', 'manage'],
+      pick_lists: ['create', 'read', 'update', 'delete', 'manage'],
+      cycle_counts: ['create', 'read', 'update', 'delete', 'manage']
+    },
+    isSystemRole: true
   }
 };
 

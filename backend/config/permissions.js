@@ -19,7 +19,21 @@ const RESOURCES = {
   DEPARTMENTS: 'departments',
   SETTINGS: 'settings',
   NOTIFICATIONS: 'notifications',
-  SUPPLIERS: 'suppliers'
+  SUPPLIERS: 'suppliers',
+  // Warehouse Management Resources
+  WAREHOUSE_SCAN: 'warehouse_scan',
+  WAREHOUSE_LOCATIONS: 'warehouse_locations',
+  WAREHOUSE_INVENTORY: 'warehouse_inventory',
+  WAREHOUSE_DASHBOARD: 'warehouse_dashboard',
+  WAREHOUSE_ANALYTICS: 'warehouse_analytics',
+  WAREHOUSE_REPORTS: 'warehouse_reports',
+  WAREHOUSE_AUDIT: 'warehouse_audit',
+  WAREHOUSE_USERS: 'warehouse_users',
+  RECEIVING: 'receiving',
+  PICKING: 'picking',
+  SHIPPING_SCAN: 'shipping_scan',
+  PICK_LISTS: 'pick_lists',
+  CYCLE_COUNTS: 'cycle_counts'
 };
 
 const ACTIONS = {
@@ -102,6 +116,65 @@ const RESOURCE_RULES = {
   },
   roles: {
     description: 'Role management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
+  },
+  // Warehouse Management Resources
+  warehouse_scan: {
+    description: 'Warehouse scanning operations',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  warehouse_locations: {
+    description: 'Warehouse bin and location management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
+  },
+  warehouse_inventory: {
+    description: 'Warehouse inventory management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  warehouse_dashboard: {
+    description: 'Warehouse dashboard and KPIs',
+    actions: [ACTIONS.READ, ACTIONS.MANAGE]
+  },
+  warehouse_analytics: {
+    description: 'Warehouse analytics and metrics',
+    actions: [ACTIONS.READ]
+  },
+  warehouse_reports: {
+    description: 'Warehouse reports',
+    actions: [ACTIONS.READ]
+  },
+  warehouse_audit: {
+    description: 'Warehouse audit logs',
+    actions: [ACTIONS.READ]
+  },
+  warehouse_users: {
+    description: 'Warehouse user management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
+  },
+  receiving: {
+    description: 'Receiving operations',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  picking: {
+    description: 'Picking operations',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  shipping_scan: {
+    description: 'Shipping scan operations',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  pick_lists: {
+    description: 'Pick list management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  cycle_counts: {
+    description: 'Cycle count management',
     actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
   }
 };
