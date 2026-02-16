@@ -14,6 +14,7 @@ export default function DocumentsPage() {
   const [user, setUser] = useState<any>(null);
   const [selectedRetailerId, setSelectedRetailerId] = useState<number>(0);
   const [retailers, setRetailers] = useState<any[]>([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     // Get user from localStorage or context
@@ -89,8 +90,8 @@ export default function DocumentsPage() {
       if (response.ok) {
         alert('Document uploaded successfully!');
         setShowUpload(false);
-        // Refresh document list
-        window.location.reload();
+        // Trigger document list refresh
+        setRefreshTrigger(prev => prev + 1);
       } else {
         const error = await response.json();
         alert(`Upload failed: ${error.error}`);
@@ -184,6 +185,7 @@ export default function DocumentsPage() {
               supplierId={user.id}
               retailerId={selectedRetailerId}
               canDelete={true}
+              refreshTrigger={refreshTrigger}
               onDelete={(id) => console.log('Deleted document:', id)}
             />
           </div>

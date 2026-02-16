@@ -79,7 +79,7 @@ async function uploadDocument(req, res) {
     }
 
     // Verify user is authorized
-    if (req.user.role !== 'supplier' && req.user.id !== parseInt(supplierId)) {
+    if (req.user.role !== 'supplier' || req.user.id !== parseInt(supplierId)) {
       return res.status(403).json({ error: 'Unauthorized to upload documents for this supplier' });
     }
 

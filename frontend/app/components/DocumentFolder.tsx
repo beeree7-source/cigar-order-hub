@@ -22,9 +22,10 @@ interface DocumentFolderProps {
   retailerId: number;
   onDelete?: (documentId: number) => void;
   canDelete?: boolean;
+  refreshTrigger?: number;
 }
 
-export default function DocumentFolder({ supplierId, retailerId, onDelete, canDelete = false }: DocumentFolderProps) {
+export default function DocumentFolder({ supplierId, retailerId, onDelete, canDelete = false, refreshTrigger = 0 }: DocumentFolderProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocs, setFilteredDocs] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,7 @@ export default function DocumentFolder({ supplierId, retailerId, onDelete, canDe
 
   useEffect(() => {
     fetchDocuments();
-  }, [supplierId, retailerId]);
+  }, [supplierId, retailerId, refreshTrigger]);
 
   useEffect(() => {
     filterDocuments();

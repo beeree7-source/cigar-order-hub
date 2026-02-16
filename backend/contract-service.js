@@ -105,6 +105,11 @@ async function createContract(req, res) {
 async function generateContractPDF(contractId, contractData) {
   return new Promise((resolve, reject) => {
     try {
+      // Validate contractId is a safe integer
+      if (!Number.isSafeInteger(contractId) || contractId <= 0) {
+        return reject(new Error('Invalid contract ID'));
+      }
+
       const pdfFilename = `contract_${contractId}_${uuidv4()}.pdf`;
       const pdfPath = path.join(CONTRACT_STORAGE_PATH, pdfFilename);
 

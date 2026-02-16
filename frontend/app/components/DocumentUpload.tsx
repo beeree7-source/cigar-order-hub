@@ -9,9 +9,11 @@ interface DocumentUploadProps {
   allowedTypes?: string[];
 }
 
+const FIFTY_MEGABYTES_IN_BYTES = 52428800; // 50MB
+
 export default function DocumentUpload({
   onUpload,
-  maxSize = 52428800, // 50MB
+  maxSize = FIFTY_MEGABYTES_IN_BYTES,
   allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword']
 }: DocumentUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
