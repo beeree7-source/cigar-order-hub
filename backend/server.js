@@ -902,6 +902,352 @@ app.get('/api/:role/reports/scheduling-efficiency', authenticateToken, (req, res
   res.status(501).json({ message: 'Report endpoints will be implemented with analytics service' });
 });
 
+// ============================================
+// WAREHOUSE MANAGEMENT SYSTEM
+// ============================================
+
+const warehouseService = require('./warehouse-service');
+const scanningService = require('./scanning-service');
+const receivingService = require('./receiving-service');
+const pickingService = require('./picking-service');
+const warehouseAnalytics = require('./warehouse-analytics-service');
+
+// Universal Scan Endpoint
+app.post('/api/protected/warehouse/scan', authenticateToken, async (req, res) => {
+  try {
+    const result = await scanningService.processScan(req.body, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Scan History
+app.get('/api/protected/warehouse/scan-history', authenticateToken, async (req, res) => {
+  try {
+    const history = await scanningService.getScanHistory(req.query);
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Scan Statistics
+app.get('/api/protected/warehouse/scan-stats', authenticateToken, async (req, res) => {
+  try {
+    const stats = await scanningService.getScanStats(req.query);
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== Receiving Module ==========
+
+// Create receiving shipment
+app.post('/api/protected/warehouse/receiving/shipments', authenticateToken, async (req, res) => {
+  try {
+    const shipment = await receivingService.createReceivingShipment(req.body, req.user.userId);
+    res.json(shipment);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// List receiving shipments
+app.get('/api/protected/warehouse/receiving/shipments', authenticateToken, async (req, res) => {
+  try {
+    const shipments = await receivingService.getReceivingShipments(req.query);
+    res.json(shipments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get shipment details
+app.get('/api/protected/warehouse/receiving/shipments/:id', authenticateToken, async (req, res) => {
+  try {
+    const shipment = await receivingService.getReceivingShipmentDetails(req.params.id);
+    res.json(shipment);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// Scan item during receiving
+app.post('/api/protected/warehouse/receiving/:shipmentId/scan', authenticateToken, async (req, res) => {
+  try {
+    const result = await receivingService.processScanReceiving(req.params.shipmentId, req.body, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Complete receiving shipment
+app.put('/api/protected/warehouse/receiving/:shipmentId/complete', authenticateToken, async (req, res) => {
+  try {
+    const result = await receivingService.completeReceivingShipment(req.params.shipmentId, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Report discrepancy
+app.post('/api/protected/warehouse/receiving/:shipmentId/discrepancy', authenticateToken, async (req, res) => {
+  try {
+    const result = await receivingService.reportDiscrepancy(req.params.shipmentId, req.body.item_id, req.body, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ========== Picking Module ==========
+
+// Create pick list
+app.post('/api/protected/warehouse/pick-lists', authenticateToken, async (req, res) => {
+  try {
+    const pickList = await pickingService.createPickList(req.body, req.user.userId);
+    res.json(pickList);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// List pick lists
+app.get('/api/protected/warehouse/pick-lists', authenticateToken, async (req, res) => {
+  try {
+    const pickLists = await pickingService.getPickLists(req.query);
+    res.json(pickLists);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get pick list details
+app.get('/api/protected/warehouse/pick-lists/:id', authenticateToken, async (req, res) => {
+  try {
+    const pickList = await pickingService.getPickListDetails(req.params.id);
+    res.json(pickList);
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// Scan item during picking
+app.post('/api/protected/warehouse/pick-lists/:id/scan', authenticateToken, async (req, res) => {
+  try {
+    const result = await pickingService.processScanPicking(req.params.id, req.body, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Complete pick list
+app.put('/api/protected/warehouse/pick-lists/:id/complete', authenticateToken, async (req, res) => {
+  try {
+    const result = await pickingService.completePickList(req.params.id, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get optimized pick route
+app.get('/api/protected/warehouse/pick-lists/:id/suggested-route', authenticateToken, async (req, res) => {
+  try {
+    const route = await pickingService.getSuggestedRoute(req.params.id);
+    res.json(route);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== Inventory Module ==========
+
+// Get real-time inventory
+app.get('/api/protected/warehouse/inventory', authenticateToken, async (req, res) => {
+  try {
+    const inventory = await warehouseAnalytics.getInventorySnapshot(req.query);
+    res.json(inventory);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get inventory by location
+app.get('/api/protected/warehouse/inventory/by-location/:locationId', authenticateToken, async (req, res) => {
+  try {
+    const inventory = await warehouseService.getInventoryByLocation(req.params.locationId);
+    res.json(inventory);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Manual inventory adjustment
+app.post('/api/protected/warehouse/inventory/adjust', authenticateToken, async (req, res) => {
+  try {
+    const { product_id, location_id, quantity } = req.body;
+    const result = await warehouseService.updateProductLocation(product_id, location_id, quantity, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Get cycle count discrepancies
+app.get('/api/protected/warehouse/inventory/discrepancies', authenticateToken, async (req, res) => {
+  try {
+    const discrepancies = await warehouseAnalytics.getCycleCountDiscrepancies(req.query);
+    res.json(discrepancies);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== Locations Module ==========
+
+// Create warehouse location
+app.post('/api/protected/warehouse/locations', authenticateToken, async (req, res) => {
+  try {
+    const location = await warehouseService.createLocation(req.body, req.user.userId);
+    res.json(location);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// List warehouse locations
+app.get('/api/protected/warehouse/locations', authenticateToken, async (req, res) => {
+  try {
+    const locations = await warehouseService.getLocations(req.query);
+    res.json(locations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get specific location
+app.get('/api/protected/warehouse/locations/:id', authenticateToken, async (req, res) => {
+  try {
+    const location = await warehouseService.getLocation(req.params.id);
+    if (!location) {
+      return res.status(404).json({ error: 'Location not found' });
+    }
+    res.json(location);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update warehouse location
+app.put('/api/protected/warehouse/locations/:id', authenticateToken, async (req, res) => {
+  try {
+    const result = await warehouseService.updateLocation(req.params.id, req.body, req.user.userId);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// ========== Analytics & Reporting ==========
+
+// Warehouse dashboard KPIs
+app.get('/api/protected/warehouse/dashboard', authenticateToken, async (req, res) => {
+  try {
+    const kpis = await warehouseAnalytics.getDashboardKPIs(req.query);
+    res.json(kpis);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Audit log
+app.get('/api/protected/warehouse/reports/audit-log', authenticateToken, async (req, res) => {
+  try {
+    const logs = await warehouseService.getAuditLogs(req.query);
+    res.json(logs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Inventory aging report
+app.get('/api/protected/warehouse/reports/inventory-aging', authenticateToken, async (req, res) => {
+  try {
+    const report = await warehouseAnalytics.getInventoryAging(req.query);
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// SKU velocity report
+app.get('/api/protected/warehouse/reports/sku-velocity', authenticateToken, async (req, res) => {
+  try {
+    const report = await warehouseAnalytics.getSKUVelocity(req.query);
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Worker productivity report
+app.get('/api/protected/warehouse/reports/worker-productivity', authenticateToken, async (req, res) => {
+  try {
+    const report = await warehouseAnalytics.getWorkerProductivity(req.query);
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Performance trends
+app.get('/api/protected/warehouse/reports/performance-trends', authenticateToken, async (req, res) => {
+  try {
+    const trends = await warehouseAnalytics.getPerformanceTrends(req.query);
+    res.json(trends);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Location utilization
+app.get('/api/protected/warehouse/reports/location-utilization', authenticateToken, async (req, res) => {
+  try {
+    const utilization = await warehouseAnalytics.getLocationUtilization(req.query);
+    res.json(utilization);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ========== Warehouse Users ==========
+
+// Get warehouse user info
+app.get('/api/protected/warehouse/users/:userId', authenticateToken, async (req, res) => {
+  try {
+    const warehouseUser = await warehouseService.getWarehouseUser(req.params.userId);
+    res.json(warehouseUser);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create/update warehouse user
+app.post('/api/protected/warehouse/users/:userId', authenticateToken, async (req, res) => {
+  try {
+    const result = await warehouseService.upsertWarehouseUser(req.params.userId, req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
 });
