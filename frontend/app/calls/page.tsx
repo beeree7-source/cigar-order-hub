@@ -76,28 +76,7 @@ export default function CallsPage() {
     return res.json();
   }, [token]);
 
-  // Initialize - check for token and load user
-  useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    
-    if (!storedToken || !storedUser) {
-      router.push("/");
-      return;
-    }
-
-    setToken(storedToken);
-    setCurrentUser(JSON.parse(storedUser));
-  }, [router]);
-
-  // Load data when token is available
-  useEffect(() => {
-    if (token) {
-      loadCallLogs();
-      loadAnalytics();
-    }
-  }, [token, filters, loadCallLogs, loadAnalytics]);
-
+  // Define functions before useEffect hooks that use them
   const loadCallLogs = useCallback(async () => {
     setLoading(true);
     try {
@@ -132,6 +111,28 @@ export default function CallsPage() {
       console.error("Failed to load analytics:", err);
     }
   }, [apiCall, filters]);
+
+  // Initialize - check for token and load user
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    
+    if (!storedToken || !storedUser) {
+      router.push("/");
+      return;
+    }
+
+    setToken(storedToken);
+    setCurrentUser(JSON.parse(storedUser));
+  }, [router]);
+
+  // Load data when token is available
+  useEffect(() => {
+    if (token) {
+      loadCallLogs();
+      loadAnalytics();
+    }
+  }, [token, filters, loadCallLogs, loadAnalytics]);
 
   const openNotesModal = (call: CallLog) => {
     setSelectedCall(call);

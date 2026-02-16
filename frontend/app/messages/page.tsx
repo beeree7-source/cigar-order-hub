@@ -68,6 +68,49 @@ export default function MessagesPage() {
     return res.json();
   }, [token]);
 
+  // Define functions before useEffect hooks that use them
+  const loadConversations = useCallback(async () => {
+    try {
+      const data = await apiCall("/api/protected/messages/conversations");
+      setConversations(data);
+    } catch (err: any) {
+      console.error("Failed to load conversations:", err);
+    }
+  }, [apiCall]);
+
+  const loadUnreadCount = useCallback(async () => {
+    try {
+      const data = await apiCall("/api/protected/messages/unread/count");
+      setUnreadCount(data.count);
+    } catch (err: any) {
+      console.error("Failed to load unread count:", err);
+    }
+  }, [apiCall]);
+
+  const loadMessages = useCallback(async (otherUserId: number) => {
+    try {
+      const data = await apiCall(`/api/protected/messages/thread/${otherUserId}`);
+      setMessages(data.reverse()); // Reverse to show oldest first
+      
+      // Mark unread messages as read
+      const unreadMessages = data.filter(
+        (m: Message) => !m.is_read && m.recipient_id === currentUser?.id
+      );
+      
+      for (const msg of unreadMessages) {
+        await apiCall(`/api/protected/messages/${msg.id}/read`, "PUT");
+      }
+      
+      // Reload conversations to update unread count
+      if (unreadMessages.length > 0) {
+        loadConversations();
+        loadUnreadCount();
+      }
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }, [apiCall, currentUser, loadConversations, loadUnreadCount]);
+
   // Initialize - check for token and load user
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -111,48 +154,6 @@ export default function MessagesPage() {
       return () => clearInterval(interval);
     }
   }, [selectedConversation, token, loadMessages]);
-
-  const loadConversations = useCallback(async () => {
-    try {
-      const data = await apiCall("/api/protected/messages/conversations");
-      setConversations(data);
-    } catch (err: any) {
-      console.error("Failed to load conversations:", err);
-    }
-  }, [apiCall]);
-
-  const loadUnreadCount = useCallback(async () => {
-    try {
-      const data = await apiCall("/api/protected/messages/unread/count");
-      setUnreadCount(data.count);
-    } catch (err: any) {
-      console.error("Failed to load unread count:", err);
-    }
-  }, [apiCall]);
-
-  const loadMessages = useCallback(async (otherUserId: number) => {
-    try {
-      const data = await apiCall(`/api/protected/messages/thread/${otherUserId}`);
-      setMessages(data.reverse()); // Reverse to show oldest first
-      
-      // Mark unread messages as read
-      const unreadMessages = data.filter(
-        (m: Message) => !m.is_read && m.recipient_id === currentUser?.id
-      );
-      
-      for (const msg of unreadMessages) {
-        await apiCall(`/api/protected/messages/${msg.id}/read`, "PUT");
-      }
-      
-      // Reload conversations to update unread count
-      if (unreadMessages.length > 0) {
-        loadConversations();
-        loadUnreadCount();
-      }
-    } catch (err: any) {
-      setError(err.message);
-    }
-  }, [apiCall, currentUser, loadConversations, loadUnreadCount]);
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedConversation) return;
