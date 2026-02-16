@@ -338,16 +338,19 @@ const processScanPicking = async (pickListId, scanData, userId) => {
  */
 const updatePickListStatus = (pickListId, status, userId) => {
   return new Promise((resolve, reject) => {
-    const query = `
-      UPDATE pick_lists 
-      SET status = ?,
-          ${status === 'in_progress' ? 'started_at = CURRENT_TIMESTAMP,' : ''}
-          ${status === 'completed' ? 'completed_at = CURRENT_TIMESTAMP,' : ''}
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `;
+    let query = 'UPDATE pick_lists SET status = ?';
+    const params = [status];
     
-    db.run(query, [status, pickListId], function(err) {
+    if (status === 'in_progress') {
+      query += ', started_at = CURRENT_TIMESTAMP';
+    } else if (status === 'completed') {
+      query += ', completed_at = CURRENT_TIMESTAMP';
+    }
+    
+    query += ', updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+    params.push(pickListId);
+    
+    db.run(query, params, function(err) {
       if (err) return reject(err);
       
       logAuditEvent(userId, 'update_pick_list', 'pick_lists', pickListId, {

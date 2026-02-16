@@ -13,26 +13,29 @@ const getDashboardKPIs = (filters = {}) => {
     try {
       const { start_date, end_date, zone } = filters;
       
-      // Build date filter
-      const dateFilter = start_date && end_date ? 
-        `AND created_at BETWEEN '${start_date}' AND '${end_date}'` : 
-        `AND DATE(created_at) = DATE('now')`;
-      
-      const zoneFilter = zone ? `AND zone = '${zone}'` : '';
-      
       // Get receiving stats
       const receivingStats = await new Promise((resolve, reject) => {
-        const query = `
+        let query = `
           SELECT 
             COUNT(*) as total_shipments,
             SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_shipments,
             SUM(total_items) as total_items_expected,
             SUM(items_received) as total_items_received
           FROM receiving_shipments
-          WHERE 1=1 ${dateFilter}
+          WHERE 1=1
         `;
         
-        db.get(query, [], (err, row) => {
+        const params = [];
+        
+        if (start_date && end_date) {
+          query += ' AND created_at BETWEEN ? AND ?';
+          params.push(start_date, end_date);
+        } else {
+          query += ' AND DATE(created_at) = DATE(?)';
+          params.push('now');
+        }
+        
+        db.get(query, params, (err, row) => {
           if (err) return reject(err);
           resolve(row);
         });
@@ -40,7 +43,7 @@ const getDashboardKPIs = (filters = {}) => {
       
       // Get picking stats
       const pickingStats = await new Promise((resolve, reject) => {
-        const query = `
+        let query = `
           SELECT 
             COUNT(*) as total_pick_lists,
             SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_pick_lists,
@@ -48,10 +51,25 @@ const getDashboardKPIs = (filters = {}) => {
             SUM(items_picked) as items_picked,
             AVG(actual_time) as avg_pick_time
           FROM pick_lists
-          WHERE 1=1 ${dateFilter} ${zoneFilter}
+          WHERE 1=1
         `;
         
-        db.get(query, [], (err, row) => {
+        const params = [];
+        
+        if (start_date && end_date) {
+          query += ' AND created_at BETWEEN ? AND ?';
+          params.push(start_date, end_date);
+        } else {
+          query += ' AND DATE(created_at) = DATE(?)';
+          params.push('now');
+        }
+        
+        if (zone) {
+          query += ' AND zone = ?';
+          params.push(zone);
+        }
+        
+        db.get(query, params, (err, row) => {
           if (err) return reject(err);
           resolve(row);
         });
@@ -59,18 +77,29 @@ const getDashboardKPIs = (filters = {}) => {
       
       // Get scanning stats
       const scanningStats = await new Promise((resolve, reject) => {
-        const query = `
+        let query = `
           SELECT 
             COUNT(*) as total_scans,
             SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as successful_scans,
             SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END) as failed_scans,
             scan_type
           FROM inventory_scans
-          WHERE 1=1 ${dateFilter}
-          GROUP BY scan_type
+          WHERE 1=1
         `;
         
-        db.all(query, [], (err, rows) => {
+        const params = [];
+        
+        if (start_date && end_date) {
+          query += ' AND scanned_at BETWEEN ? AND ?';
+          params.push(start_date, end_date);
+        } else {
+          query += ' AND DATE(scanned_at) = DATE(?)';
+          params.push('now');
+        }
+        
+        query += ' GROUP BY scan_type';
+        
+        db.all(query, params, (err, rows) => {
           if (err) return reject(err);
           resolve(rows);
         });
@@ -100,8 +129,9 @@ const getDashboardKPIs = (filters = {}) => {
       const picking_accuracy = pickingStats.total_items > 0 ?
         (pickingStats.items_picked / pickingStats.total_items * 100).toFixed(2) : 0;
       
-      const scan_success_rate = scanningStats.reduce((acc, s) => acc + s.successful_scans, 0) /
-        scanningStats.reduce((acc, s) => acc + s.total_scans, 0) * 100;
+      const totalScans = scanningStats.reduce((acc, s) => acc + s.total_scans, 0);
+      const successfulScans = scanningStats.reduce((acc, s) => acc + s.successful_scans, 0);
+      const scan_success_rate = totalScans > 0 ? (successfulScans / totalScans * 100).toFixed(2) : "0.00";
       
       resolve({
         throughput: {
@@ -365,12 +395,12 @@ const getPerformanceTrends = (filters = {}) => {
         SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as successful,
         SUM(quantity) as total_quantity
       FROM inventory_scans
-      WHERE scanned_at >= datetime('now', '-${days} days')
+      WHERE scanned_at >= datetime('now', '-' || ? || ' days')
       GROUP BY DATE(scanned_at), scan_type
       ORDER BY date DESC, scan_type
     `;
     
-    db.all(query, [], (err, rows) => {
+    db.all(query, [days], (err, rows) => {
       if (err) return reject(err);
       
       // Group by date
