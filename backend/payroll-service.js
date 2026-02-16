@@ -588,6 +588,177 @@ const getPayrollSettings = (req, res) => {
   });
 };
 
+/**
+ * Generate paystub for employee payroll record
+ */
+const generatePaystub = (req, res) => {
+  const { payroll_record_id } = req.params;
+  const { format = 'json' } = req.query; // json or pdf (future)
+
+  const query = `
+    SELECT 
+      pr.*,
+      ce.employee_id as emp_number,
+      u.name as employee_name,
+      u.email as employee_email,
+      ce.position,
+      ce.department_id,
+      d.name as department_name,
+      pp.period_start_date,
+      pp.period_end_date,
+      pp.pay_frequency,
+      c.name as company_name
+    FROM payroll_records pr
+    JOIN companies_employees ce ON pr.employee_id = ce.id
+    JOIN users u ON ce.user_id = u.id
+    JOIN payroll_periods pp ON pr.payroll_period_id = pp.id
+    JOIN companies c ON pr.company_id = c.id
+    LEFT JOIN departments d ON ce.department_id = d.id
+    WHERE pr.id = ?
+  `;
+
+  db.get(query, [payroll_record_id], (err, record) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (!record) {
+      return res.status(404).json({ error: 'Payroll record not found' });
+    }
+
+    // Build paystub object
+    const paystub = {
+      paystub_id: `PS-${record.id}-${Date.now()}`,
+      company: {
+        name: record.company_name
+      },
+      employee: {
+        id: record.emp_number,
+        name: record.employee_name,
+        email: record.employee_email,
+        position: record.position,
+        department: record.department_name
+      },
+      pay_period: {
+        start_date: record.period_start_date,
+        end_date: record.period_end_date,
+        frequency: record.pay_frequency,
+        payment_date: record.paid_date || 'Pending'
+      },
+      earnings: {
+        regular: {
+          hours: parseFloat(record.regular_hours || 0),
+          rate: parseFloat(record.regular_rate || 0),
+          amount: parseFloat(record.regular_pay || 0)
+        },
+        overtime: {
+          hours: parseFloat(record.overtime_hours || 0),
+          rate: parseFloat(record.overtime_rate || 0),
+          amount: parseFloat(record.overtime_pay || 0)
+        },
+        gross_pay: parseFloat(record.gross_pay || 0)
+      },
+      deductions: {
+        federal_tax: parseFloat(record.federal_tax || 0),
+        state_tax: parseFloat(record.state_tax || 0),
+        social_security: parseFloat(record.social_security || 0),
+        medicare: parseFloat(record.medicare || 0),
+        other: parseFloat(record.other_deductions || 0),
+        total: parseFloat(record.federal_tax || 0) + 
+               parseFloat(record.state_tax || 0) + 
+               parseFloat(record.social_security || 0) + 
+               parseFloat(record.medicare || 0) + 
+               parseFloat(record.other_deductions || 0)
+      },
+      net_pay: parseFloat(record.net_pay || 0),
+      payment_method: record.payment_method || 'Pending',
+      status: record.status,
+      generated_at: new Date().toISOString()
+    };
+
+    if (format === 'pdf') {
+      // Future: Generate PDF paystub
+      return res.status(501).json({ 
+        message: 'PDF generation not yet implemented',
+        paystub_data: paystub
+      });
+    }
+
+    res.json(paystub);
+  });
+};
+
+/**
+ * Email paystub to employee
+ */
+const emailPaystub = (req, res) => {
+  const { payroll_record_id } = req.params;
+
+  const query = `
+    SELECT 
+      u.email as employee_email,
+      u.name as employee_name,
+      pr.*,
+      pp.period_start_date,
+      pp.period_end_date
+    FROM payroll_records pr
+    JOIN companies_employees ce ON pr.employee_id = ce.id
+    JOIN users u ON ce.user_id = u.id
+    JOIN payroll_periods pp ON pr.payroll_period_id = pp.id
+    WHERE pr.id = ?
+  `;
+
+  db.get(query, [payroll_record_id], (err, record) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (!record) {
+      return res.status(404).json({ error: 'Payroll record not found' });
+    }
+
+    // TODO: Integrate with email service
+    // For now, just return success message
+    res.json({
+      message: 'Paystub email queued for delivery',
+      employee_email: record.employee_email,
+      employee_name: record.employee_name,
+      pay_period: `${record.period_start_date} to ${record.period_end_date}`,
+      note: 'Email integration pending - implement with existing notifications system'
+    });
+  });
+};
+
+/**
+ * Get all paystubs for an employee
+ */
+const getEmployeePaystubs = (req, res) => {
+  const { employee_id } = req.params;
+  const { limit = 12 } = req.query; // Default to last 12 pay periods
+
+  const query = `
+    SELECT 
+      pr.id as payroll_record_id,
+      pp.period_start_date,
+      pp.period_end_date,
+      pr.gross_pay,
+      pr.net_pay,
+      pr.status,
+      pr.paid_date,
+      pr.payment_method
+    FROM payroll_records pr
+    JOIN payroll_periods pp ON pr.payroll_period_id = pp.id
+    WHERE pr.employee_id = ?
+    ORDER BY pp.period_start_date DESC
+    LIMIT ?
+  `;
+
+  db.all(query, [employee_id, parseInt(limit)], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
+};
+
 module.exports = {
   createPayrollPeriod,
   getPayrollPeriods,
@@ -600,5 +771,8 @@ module.exports = {
   exportPayroll,
   getPayrollSummaryByDepartment,
   updatePayrollSettings,
-  getPayrollSettings
+  getPayrollSettings,
+  generatePaystub,
+  emailPaystub,
+  getEmployeePaystubs
 };

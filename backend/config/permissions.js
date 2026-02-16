@@ -33,7 +33,22 @@ const RESOURCES = {
   PICKING: 'picking',
   SHIPPING_SCAN: 'shipping_scan',
   PICK_LISTS: 'pick_lists',
-  CYCLE_COUNTS: 'cycle_counts'
+  CYCLE_COUNTS: 'cycle_counts',
+  // HR & Payroll Resources
+  EMPLOYEES: 'employees',
+  SCHEDULES: 'schedules',
+  SCHEDULE_TEMPLATES: 'schedule_templates',
+  TIME_CLOCK: 'time_clock',
+  TIMESHEETS: 'timesheets',
+  TIME_OFF: 'time_off',
+  ATTENDANCE: 'attendance',
+  OVERTIME: 'overtime',
+  PAYROLL: 'payroll',
+  PAYSTUBS: 'paystubs',
+  PAYROLL_EXPORT: 'payroll_export',
+  PAYROLL_REPORTS: 'payroll_reports',
+  HR_REPORTS: 'hr_reports',
+  HR_ANALYTICS: 'hr_analytics'
 };
 
 const ACTIONS = {
@@ -176,6 +191,71 @@ const RESOURCE_RULES = {
   cycle_counts: {
     description: 'Cycle count management',
     actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
+  },
+  // HR & Payroll Resources
+  employees: {
+    description: 'Employee management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  schedules: {
+    description: 'Employee schedules',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  schedule_templates: {
+    description: 'Schedule templates',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE]
+  },
+  time_clock: {
+    description: 'Time clock operations',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  timesheets: {
+    description: 'Timesheet management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  time_off: {
+    description: 'Time off requests',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.DELETE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  attendance: {
+    description: 'Attendance tracking',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  overtime: {
+    description: 'Overtime management',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  payroll: {
+    description: 'Payroll processing',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.UPDATE, ACTIONS.MANAGE]
+  },
+  paystubs: {
+    description: 'Pay stubs',
+    actions: [ACTIONS.CREATE, ACTIONS.READ, ACTIONS.MANAGE],
+    ownershipRules: true
+  },
+  payroll_export: {
+    description: 'Payroll export',
+    actions: [ACTIONS.CREATE, ACTIONS.READ]
+  },
+  payroll_reports: {
+    description: 'Payroll reports',
+    actions: [ACTIONS.READ]
+  },
+  hr_reports: {
+    description: 'HR reports',
+    actions: [ACTIONS.READ]
+  },
+  hr_analytics: {
+    description: 'HR analytics',
+    actions: [ACTIONS.READ]
   }
 };
 

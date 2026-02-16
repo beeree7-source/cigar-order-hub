@@ -141,6 +141,106 @@ const ROLES = {
       cycle_counts: ['create', 'read', 'update', 'delete', 'manage']
     },
     isSystemRole: true
+  },
+  
+  // HR & Payroll Management Roles
+  EMPLOYEE: {
+    id: 11,
+    name: 'Employee',
+    description: 'View own schedule, punch in/out, request time off, view paystubs',
+    permissions: {
+      schedules: ['read'], // Own schedule only
+      time_clock: ['create', 'read'], // Own punches only
+      timesheets: ['read'], // Own timesheets only
+      time_off: ['create', 'read'], // Own requests only
+      paystubs: ['read'] // Own paystubs only
+    },
+    isSystemRole: true
+  },
+  
+  SHIFT_SUPERVISOR: {
+    id: 12,
+    name: 'Shift Supervisor',
+    description: 'Manage team schedules, approve timesheets, view punch history',
+    permissions: {
+      schedules: ['read', 'update'], // Team schedules
+      time_clock: ['read', 'update'], // Team punches
+      timesheets: ['read', 'update'], // Approve team timesheets
+      time_off: ['read'], // View team time off
+      attendance: ['read', 'update'], // Manage team attendance
+      overtime: ['read'], // View team overtime
+      hr_reports: ['read'] // Team reports
+    },
+    isSystemRole: true
+  },
+  
+  HR_MANAGER: {
+    id: 13,
+    name: 'HR Manager',
+    description: 'Create schedules, manage all employees, approve time off, generate reports',
+    permissions: {
+      employees: ['create', 'read', 'update', 'manage'],
+      schedules: ['create', 'read', 'update', 'delete', 'manage'],
+      time_clock: ['read', 'update', 'manage'],
+      timesheets: ['read', 'update', 'manage'],
+      time_off: ['read', 'update', 'manage'], // Approve all requests
+      attendance: ['create', 'read', 'update', 'manage'],
+      overtime: ['read', 'update', 'manage'],
+      schedule_templates: ['create', 'read', 'update', 'delete'],
+      hr_reports: ['read'],
+      hr_analytics: ['read']
+    },
+    isSystemRole: true
+  },
+  
+  PAYROLL_ADMIN: {
+    id: 14,
+    name: 'Payroll Admin',
+    description: 'Process payroll, view payroll reports, export for accounting',
+    permissions: {
+      payroll: ['create', 'read', 'update', 'manage'],
+      timesheets: ['read'], // Read-only for payroll processing
+      overtime: ['read'], // View for payroll calculation
+      employees: ['read'], // View employee info
+      payroll_reports: ['read'],
+      paystubs: ['create', 'read', 'manage'],
+      payroll_export: ['create', 'read']
+    },
+    isSystemRole: true
+  },
+  
+  LOCATION_MANAGER: {
+    id: 15,
+    name: 'Location Manager',
+    description: 'Manage schedules and time for specific location',
+    permissions: {
+      schedules: ['create', 'read', 'update', 'delete'], // Location schedules
+      time_clock: ['read', 'update'], // Location punches
+      timesheets: ['read', 'update'], // Location timesheets
+      time_off: ['read', 'update'], // Approve location requests
+      attendance: ['read', 'update'], // Location attendance
+      overtime: ['read'], // Location overtime
+      employees: ['read'], // Location employees
+      hr_reports: ['read'] // Location reports
+    },
+    isSystemRole: true
+  },
+  
+  DEPARTMENT_MANAGER: {
+    id: 16,
+    name: 'Department Manager',
+    description: 'Manage schedules and time for specific department',
+    permissions: {
+      schedules: ['create', 'read', 'update', 'delete'], // Department schedules
+      time_clock: ['read', 'update'], // Department punches
+      timesheets: ['read', 'update'], // Department timesheets
+      time_off: ['read', 'update'], // Approve department requests
+      attendance: ['read', 'update'], // Department attendance
+      overtime: ['read'], // Department overtime
+      employees: ['read'], // Department employees
+      hr_reports: ['read'] // Department reports
+    },
+    isSystemRole: true
   }
 };
 
