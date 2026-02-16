@@ -1253,40 +1253,58 @@ app.post('/api/protected/warehouse/users/:userId', authenticateToken, async (req
 
 const subscriptionController = require('./retailer-subscription-controller');
 
+// Rate limiting for subscription operations
+const subscriptionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each user to 100 requests per 15 minutes
+  message: 'Too many subscription requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Stricter rate limiting for subscription changes (upgrades, cancellations)
+const subscriptionChangeLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // Limit to 10 subscription changes per hour
+  message: 'Too many subscription changes, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 // Subscription tier routes
 app.get('/api/retailer-subscription/tiers', subscriptionController.getSubscriptionTiers);
-app.get('/api/retailer-subscription/current', authenticateToken, subscriptionController.getCurrentSubscription);
-app.post('/api/retailer-subscription/subscribe', authenticateToken, subscriptionController.subscribeToTier);
-app.post('/api/retailer-subscription/change-tier', authenticateToken, subscriptionController.changeSubscriptionTier);
-app.post('/api/retailer-subscription/cancel', authenticateToken, subscriptionController.cancelSubscription);
-app.post('/api/retailer-subscription/reactivate', authenticateToken, subscriptionController.reactivateSubscription);
-app.get('/api/retailer-subscription/history', authenticateToken, subscriptionController.getSubscriptionHistory);
+app.get('/api/retailer-subscription/current', authenticateToken, subscriptionLimiter, subscriptionController.getCurrentSubscription);
+app.post('/api/retailer-subscription/subscribe', authenticateToken, subscriptionChangeLimiter, subscriptionController.subscribeToTier);
+app.post('/api/retailer-subscription/change-tier', authenticateToken, subscriptionChangeLimiter, subscriptionController.changeSubscriptionTier);
+app.post('/api/retailer-subscription/cancel', authenticateToken, subscriptionChangeLimiter, subscriptionController.cancelSubscription);
+app.post('/api/retailer-subscription/reactivate', authenticateToken, subscriptionChangeLimiter, subscriptionController.reactivateSubscription);
+app.get('/api/retailer-subscription/history', authenticateToken, subscriptionLimiter, subscriptionController.getSubscriptionHistory);
 
 // Feature access routes
-app.get('/api/retailer-subscription/features', authenticateToken, subscriptionController.getAvailableFeatures);
-app.get('/api/retailer-subscription/features/:featureCode', authenticateToken, subscriptionController.checkFeatureAccess);
+app.get('/api/retailer-subscription/features', authenticateToken, subscriptionLimiter, subscriptionController.getAvailableFeatures);
+app.get('/api/retailer-subscription/features/:featureCode', authenticateToken, subscriptionLimiter, subscriptionController.checkFeatureAccess);
 
 // Usage tracking routes
-app.get('/api/retailer-subscription/usage', authenticateToken, subscriptionController.getUsageStatistics);
-app.get('/api/retailer-subscription/usage/:metricType/history', authenticateToken, subscriptionController.getUsageHistory);
+app.get('/api/retailer-subscription/usage', authenticateToken, subscriptionLimiter, subscriptionController.getUsageStatistics);
+app.get('/api/retailer-subscription/usage/:metricType/history', authenticateToken, subscriptionLimiter, subscriptionController.getUsageHistory);
 
 // Billing routes
-app.get('/api/retailer-subscription/billing/history', authenticateToken, subscriptionController.getBillingHistory);
-app.get('/api/retailer-subscription/billing/invoice/:invoiceId', authenticateToken, subscriptionController.getInvoice);
+app.get('/api/retailer-subscription/billing/history', authenticateToken, subscriptionLimiter, subscriptionController.getBillingHistory);
+app.get('/api/retailer-subscription/billing/invoice/:invoiceId', authenticateToken, subscriptionLimiter, subscriptionController.getInvoice);
 
 // Payment method routes
-app.get('/api/retailer-subscription/payment-methods', authenticateToken, subscriptionController.getPaymentMethods);
-app.post('/api/retailer-subscription/payment-methods', authenticateToken, subscriptionController.addPaymentMethod);
-app.put('/api/retailer-subscription/payment-methods/:paymentMethodId/default', authenticateToken, subscriptionController.setDefaultPaymentMethod);
-app.delete('/api/retailer-subscription/payment-methods/:paymentMethodId', authenticateToken, subscriptionController.removePaymentMethod);
+app.get('/api/retailer-subscription/payment-methods', authenticateToken, subscriptionLimiter, subscriptionController.getPaymentMethods);
+app.post('/api/retailer-subscription/payment-methods', authenticateToken, subscriptionChangeLimiter, subscriptionController.addPaymentMethod);
+app.put('/api/retailer-subscription/payment-methods/:paymentMethodId/default', authenticateToken, subscriptionChangeLimiter, subscriptionController.setDefaultPaymentMethod);
+app.delete('/api/retailer-subscription/payment-methods/:paymentMethodId', authenticateToken, subscriptionChangeLimiter, subscriptionController.removePaymentMethod);
 
 // Location routes
-app.get('/api/retailer-subscription/locations', authenticateToken, subscriptionController.getLocations);
-app.post('/api/retailer-subscription/locations', authenticateToken, subscriptionController.addLocation);
+app.get('/api/retailer-subscription/locations', authenticateToken, subscriptionLimiter, subscriptionController.getLocations);
+app.post('/api/retailer-subscription/locations', authenticateToken, subscriptionChangeLimiter, subscriptionController.addLocation);
 
 // Add-on routes
 app.get('/api/retailer-subscription/add-ons', subscriptionController.getAvailableAddOns);
-app.get('/api/retailer-subscription/add-ons/active', authenticateToken, subscriptionController.getActiveAddOns);
+app.get('/api/retailer-subscription/add-ons/active', authenticateToken, subscriptionLimiter, subscriptionController.getActiveAddOns);
 
 // ============================================
 // Document Scanner & Digital Contracts
