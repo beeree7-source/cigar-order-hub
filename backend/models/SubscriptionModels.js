@@ -86,7 +86,7 @@ class SubscriptionModel extends BaseModel {
         t.max_users
       FROM retailer_subscriptions s
       JOIN retailer_subscription_tiers t ON s.tier_id = t.id
-      WHERE s.retailer_id = ? AND s.status = 'active'
+      WHERE s.retailer_id = ? AND s.status IN ('active', 'trial')
       ORDER BY s.created_at DESC
       LIMIT 1
     `;
