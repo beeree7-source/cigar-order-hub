@@ -1,1 +1,24 @@
-{\n  "name": "cigar-order-hub",\n  "version": "1.0.0",\n  "private": true,\n  "scripts": {\n    "dev": "next dev",\n    "build": "next build",\n    "start": "next start",\n    "lint": "next lint"\n  },\n  "dependencies": {\n    "next": "latest",\n    "react": "latest",\n    "react-dom": "latest",\n    "lucide-react": "latest"\n  },\n  "devDependencies": {\n    "eslint": "latest",\n    "eslint-config-next": "latest"\n  }\n}
+{  
+  "name": "cigar-order-hub",  
+  "version": "1.0.0",  
+  "description": "A web application for ordering cigars",  
+  "main": "index.js",  
+  "scripts": {    
+    "test": "echo 'Error: no test specified' && exit 1"  
+  },  
+  "repository": {    
+    "type": "git",    
+    "url": "git+https://github.com/beeree7-source/cigar-order-hub.git"  
+  },  
+  "keywords": [    
+    "cigar",    
+    "order",    
+    "hub"  
+  ],  
+  "author": "beeree7-source",  
+  "license": "ISC",  
+  "bugs": {    
+    "url": "https://github.com/beeree7-source/cigar-order-hub/issues"  
+  },  
+  "homepage": "https://github.com/beeree7-source/cigar-order-hub#readme"  
+}
