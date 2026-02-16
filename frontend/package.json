@@ -1,1 +1,1 @@
-{"scripts":{"dev":"next dev","build":"next build","start":"next start"},"dependencies":{"next":"^13.0.0","react":"^18.0.0","react-dom":"^18.0.0","lucide-react":"latest"},"devDependencies":{"typescript":"^5.0.0"}}
+{\n  "name": "cigar-order-hub",\n  "version": "1.0.0",\n  "private": true,\n  "scripts": {\n    "dev": "next dev",\n    "build": "next build",\n    "start": "next start"\n  },\n  "dependencies": {\n    "next": "13.0.0",\n    "react": "18.0.0",\n    "react-dom": "18.0.0"\n  },\n  "devDependencies": {\n    "eslint": "8.0.0",\n    "eslint-config-next": "13.0.0"\n  }\n}
