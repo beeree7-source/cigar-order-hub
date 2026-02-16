@@ -1,1 +1,1 @@
-{"name": "cigar-order-hub", "version": "1.0.0", "dependencies": {"lucide-react": "^0.5.1"}}
+{"name": "cigar-order-hub", "version": "1.0.0", "dependencies": {"lucide-react": "latest", "next": "latest", "react": "latest", "react-dom": "latest"}, "devDependencies": {"typescript": "latest"}}
