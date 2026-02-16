@@ -3,7 +3,12 @@
 module.exports = {
   reactStrictMode: true,
   images: {
-    domains: ['example.com'], // Add your allowed image domains here
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
+    ],
   },
   // Additional Next.js configuration can go here
 };

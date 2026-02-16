@@ -20,3 +20,7 @@ out/
 
 # Next.js
 .vercel
+
+# Uploads
+uploads/
+*.db
