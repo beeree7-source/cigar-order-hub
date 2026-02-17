@@ -1,0 +1,13 @@
+{
+  "name": "cigar-order-hub",
+  "version": "1.0.0",
+  "description": "B2B SaaS central ordering hub for cigar retailers and wholesalers",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && node server.js",
+    "seed:suppliers": "node backend/scripts/seed-supplier-test-data.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
