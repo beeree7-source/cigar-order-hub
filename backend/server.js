@@ -799,7 +799,7 @@ app.delete("/api/orders/:id", authenticateToken, (req, res) => {
 // ============================================
 
 // Supplier: Get all orders they've created (with tracking info)
-app.get("/api/suppliers/:supplierId/orders", authenticateToken, (req, res) => {
+app.get("/api/wholesaler/:supplierId/orders", authenticateToken, (req, res) => {
   try {
     const supplierId = parseInt(req.params.supplierId);
     
@@ -852,7 +852,7 @@ app.get("/api/suppliers/:supplierId/orders", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get tracking info for orders they've placed
-app.get("/api/retailers/orders/tracking", authenticateToken, (req, res) => {
+app.get("/api/retailer/orders/tracking", authenticateToken, (req, res) => {
   try {
     const retailerId = req.user.userId;
     
@@ -900,7 +900,7 @@ app.get("/api/retailers/orders/tracking", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get specific order tracking details
-app.get("/api/retailers/orders/:orderId/tracking", authenticateToken, (req, res) => {
+app.get("/api/retailer/orders/:orderId/tracking", authenticateToken, (req, res) => {
   try {
     const orderId = parseInt(req.params.orderId);
     const retailerId = req.user.userId;
@@ -1050,7 +1050,7 @@ function getCommunicationContacts(userId, { teamOnly = false } = {}) {
 // ============================================
 
 // Supplier: Create application template
-app.post("/api/suppliers/applications", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/applications", authenticateToken, (req, res) => {
   try {
     const { application_name, description, required_fields, form_template, is_required } = req.body;
     
@@ -1081,7 +1081,7 @@ app.post("/api/suppliers/applications", authenticateToken, (req, res) => {
 });
 
 // Supplier: Get my application templates
-app.get("/api/suppliers/applications", authenticateToken, (req, res) => {
+app.get("/api/wholesaler/applications", authenticateToken, (req, res) => {
   try {
     const applications = mockSupplierApplications.filter(a => a.supplier_id === req.user.userId);
     
@@ -1095,7 +1095,7 @@ app.get("/api/suppliers/applications", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get list of all approved suppliers
-app.get("/api/retailers/approved-suppliers", authenticateToken, (req, res) => {
+app.get("/api/retailer/approved-suppliers", authenticateToken, (req, res) => {
   try {
     const approvals = mockSupplierApprovals.filter(a => a.retailer_id === req.user.userId && a.status === 'approved');
     
@@ -1123,7 +1123,7 @@ app.get("/api/retailers/approved-suppliers", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get approved sales reps for approved suppliers
-app.get("/api/retailers/approved-sales-reps", authenticateToken, (req, res) => {
+app.get("/api/retailer/approved-sales-reps", authenticateToken, (req, res) => {
   try {
     if (req.user.role !== 'retailer') {
       return res.status(403).json({ error: 'Only retailers can access approved sales reps' });
@@ -1197,7 +1197,7 @@ app.get("/api/retailers/approved-sales-reps", authenticateToken, (req, res) => {
 });
 
 // Supplier/Sales Rep: Get approved retailers for contact
-app.get("/api/suppliers/approved-retailers", authenticateToken, (req, res) => {
+app.get("/api/wholesaler/approved-retailers", authenticateToken, (req, res) => {
   try {
     if (req.user.role !== 'supplier') {
       return res.status(403).json({ error: 'Only supplier users can access approved retailers' });
@@ -1257,7 +1257,7 @@ app.get("/api/suppliers/approved-retailers", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get available suppliers to apply to
-app.get("/api/retailers/available-suppliers", authenticateToken, (req, res) => {
+app.get("/api/retailer/available-suppliers", authenticateToken, (req, res) => {
   try {
     // Get suppliers that have applications AND aren't already approved by this retailer
     const retailers_applies_to = mockSupplierApplications.map(a => a.supplier_id);
@@ -1294,7 +1294,7 @@ app.get("/api/retailers/available-suppliers", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get ALL suppliers (with their application status)
-app.get("/api/retailers/all-suppliers", authenticateToken, (req, res) => {
+app.get("/api/retailer/all-suppliers", authenticateToken, (req, res) => {
   try {
     // Get all suppliers
     const all_suppliers = mockUsers.filter(u => u.role === 'supplier');
@@ -1341,7 +1341,7 @@ app.get("/api/retailers/all-suppliers", authenticateToken, (req, res) => {
 });
 
 // Retailer: Upload tobacco license
-app.post("/api/retailers/licenses", authenticateToken, (req, res) => {
+app.post("/api/retailer/licenses", authenticateToken, (req, res) => {
   try {
     const { license_number, license_type, issue_date, expiration_date, file_name } = req.body;
     
@@ -1376,7 +1376,7 @@ app.post("/api/retailers/licenses", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get my licenses
-app.get("/api/retailers/licenses", authenticateToken, (req, res) => {
+app.get("/api/retailer/licenses", authenticateToken, (req, res) => {
   try {
     const licenses = mockRetailerLicenses.filter(l => l.retailer_id === req.user.userId);
     
@@ -1390,7 +1390,7 @@ app.get("/api/retailers/licenses", authenticateToken, (req, res) => {
 });
 
 // Retailer: Submit application to supplier
-app.post("/api/retailers/applications", authenticateToken, (req, res) => {
+app.post("/api/retailer/applications", authenticateToken, (req, res) => {
   try {
     const { supplier_id, supplier_application_id, application_data, license_id } = req.body;
     
@@ -1453,7 +1453,7 @@ app.post("/api/retailers/applications", authenticateToken, (req, res) => {
 });
 
 // Retailer: Get my applications
-app.get("/api/retailers/applications", authenticateToken, (req, res) => {
+app.get("/api/retailer/applications", authenticateToken, (req, res) => {
   try {
     const applications = mockRetailerApplications.filter(a => a.retailer_id === req.user.userId);
     
@@ -1477,7 +1477,7 @@ app.get("/api/retailers/applications", authenticateToken, (req, res) => {
 });
 
 // Supplier: Get applications from retailers
-app.get("/api/suppliers/retailer-applications", authenticateToken, (req, res) => {
+app.get("/api/wholesaler/retailer-applications", authenticateToken, (req, res) => {
   try {
     const { status } = req.query;
     let applications = mockRetailerApplications.filter(a => a.supplier_id === req.user.userId);
@@ -1508,7 +1508,7 @@ app.get("/api/suppliers/retailer-applications", authenticateToken, (req, res) =>
 });
 
 // Supplier: Approve retailer application
-app.post("/api/suppliers/applications/:applicationId/approve", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/applications/:applicationId/approve", authenticateToken, (req, res) => {
   try {
     const { applicationId } = req.params;
     const { credit_limit, payment_terms, notes } = req.body;
@@ -1554,7 +1554,7 @@ app.post("/api/suppliers/applications/:applicationId/approve", authenticateToken
 });
 
 // Supplier: Deny retailer application
-app.post("/api/suppliers/applications/:applicationId/deny", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/applications/:applicationId/deny", authenticateToken, (req, res) => {
   try {
     const { applicationId } = req.params;
     const { rejection_reason } = req.body;
@@ -1582,7 +1582,7 @@ app.post("/api/suppliers/applications/:applicationId/deny", authenticateToken, (
 });
 
 // Supplier: Verify retailer license
-app.post("/api/suppliers/licenses/:licenseId/verify", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/licenses/:licenseId/verify", authenticateToken, (req, res) => {
   try {
     const { licenseId } = req.params;
     
@@ -7263,7 +7263,7 @@ let mockPrintQueue = [
 ];
 
 // Add supplier shipping account
-app.post("/api/suppliers/:supplierId/shipping/account", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/:supplierId/shipping/account", authenticateToken, (req, res) => {
   try {
     const { supplierId } = req.params;
     const { carrier, account_number, password, meter_number, api_key } = req.body;
@@ -7324,7 +7324,7 @@ app.post("/api/suppliers/:supplierId/shipping/account", authenticateToken, (req,
 });
 
 // Get supplier shipping accounts
-app.get("/api/suppliers/:supplierId/shipping/accounts", authenticateToken, (req, res) => {
+app.get("/api/wholesaler/:supplierId/shipping/accounts", authenticateToken, (req, res) => {
   try {
     const { supplierId } = req.params;
     
@@ -7357,7 +7357,7 @@ app.get("/api/suppliers/:supplierId/shipping/accounts", authenticateToken, (req,
 });
 
 // Update supplier shipping account
-app.put("/api/suppliers/:supplierId/shipping/account/:accountId", authenticateToken, (req, res) => {
+app.put("/api/wholesaler/:supplierId/shipping/account/:accountId", authenticateToken, (req, res) => {
   try {
     const { supplierId, accountId } = req.params;
     const { account_number, password, meter_number } = req.body;
@@ -7405,7 +7405,7 @@ app.put("/api/suppliers/:supplierId/shipping/account/:accountId", authenticateTo
 });
 
 // Delete supplier shipping account
-app.delete("/api/suppliers/:supplierId/shipping/account/:accountId", authenticateToken, (req, res) => {
+app.delete("/api/wholesaler/:supplierId/shipping/account/:accountId", authenticateToken, (req, res) => {
   try {
     const { supplierId, accountId } = req.params;
     
@@ -7433,7 +7433,7 @@ app.delete("/api/suppliers/:supplierId/shipping/account/:accountId", authenticat
 });
 
 // Verify shipping account (admin only)
-app.post("/api/suppliers/:supplierId/shipping/account/:accountId/verify", authenticateToken, (req, res) => {
+app.post("/api/wholesaler/:supplierId/shipping/account/:accountId/verify", authenticateToken, (req, res) => {
   try {
     const { supplierId, accountId } = req.params;
     

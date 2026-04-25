@@ -2221,7 +2221,7 @@ export default function Dashboard() {
           </button>
           {currentUser?.role === "admin" && (
             <button
-              onClick={() => window.location.assign('/admin/quickbooks')}
+              onClick={() => window.location.assign('/wholesaler/admin/quickbooks')}
               className="btn btn-primary"
               title="Open QuickBooks"
             >

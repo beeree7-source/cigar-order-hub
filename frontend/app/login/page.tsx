@@ -37,9 +37,9 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (data.user.role === 'supplier') {
-        router.push('/suppliers/orders');
+        router.push('/wholesaler/orders');
       } else if (data.user.role === 'retailer') {
-        router.push('/retailers/order-tracking');
+        router.push('/retailer/order-tracking');
       } else if (data.user.role === 'admin') {
         router.push('/');
       } else {
